@@ -1,3 +1,7 @@
 2014-01-07  Titus Brown  <t@Titus-MacBook-Air-2.local>
 
  * Initialized repository, created server.py and README.
+
+2014-01-09	Ben Taylor	<taylo886@arctic.cse.msu.edu>
+	
+	*	Updated server.py to respond with 200 OK, send "Hello World" html
