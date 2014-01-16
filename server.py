@@ -23,6 +23,9 @@ while True:
     c.send("Content-Type: text/html\r\n\r\n")
     c.send('<html><body><h1>Hello World</h1> this is filajust\'s Web server</body></html>')
 #c.send("good bye.")
+# maybe you could get rid of these?
     c.close()
 
 # took some code from http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
+
+# this is an awesome piece of code! well done.
