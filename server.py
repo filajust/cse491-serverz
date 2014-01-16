@@ -19,9 +19,13 @@ while True:
     c, (client_host, client_port) = s.accept()
     print c.recv(1000)
     print 'Got connection from', client_host, client_port
-    #c.send('Thank you for connecting')
-    #c.send("good bye.")
-    c.send('HTTP/1.0 200 OK\n')
-    c.send('Content-Type: text/html\n\n')
-    c.send("<h1>Hello, world</h1> this is brtaylor92's Web server\n")
+    # c.send('Thank you for connecting')
+    # c.send("good bye.")
+    #^^ @comment (JF) - spaces after the hashtags
+    c.send('HTTP/1.0 200 OK\r\n')
+    #                      ^^ @comment (JF) added an \r
+    c.send('Content-Type: text/html\r\n\r\n')
+    #                              ^^   ^^ @comment (JF) added two \r's
+    c.send("<h1>Hello, world</h1> this is brtaylor92's Web server\r\n")
+    #                                 @comment (JF) added an \r  ^^
     c.close()
