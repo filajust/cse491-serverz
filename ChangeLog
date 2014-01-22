@@ -2,7 +2,11 @@
 
  * Initialized repository, created server.py and README.
 
-2014-01-15  Justin Fila
+2014-01-15  Justin Fila  <filajust@arctic.cse.msu.edu>
  
  * Added an HTTP response and a header/body to display in the browser
  * reviewed this too.
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * Fixed some formatting and merged in changes from code review
