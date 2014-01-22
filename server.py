@@ -7,8 +7,8 @@ import time
 # took some code from http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
 def handle_connection(conn):
         conn.send('HTTP/1.0 200 OK\r\n')
-        conn.send("Content-Type: text/html\r\n\r\n")
-        conn.send('<html><body><h1>Hello World</h1> this is filajust\'s Web server</body></html>')
+        conn.send("Content-type: text/html\r\n\r\n")
+        conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.')
         conn.close()
     
 def main():

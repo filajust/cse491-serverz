@@ -33,7 +33,7 @@ def test_handle_connection():
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
                       '<h1>Hello, world.</h1>' + \
-                      'This is ctb\'s Web server.'
+                      'This is filajust\'s Web server.'
 
     server.handle_connection(conn)
 
