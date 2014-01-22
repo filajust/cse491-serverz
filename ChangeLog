@@ -10,3 +10,7 @@
 2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * Fixed some formatting and merged in changes from code review
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * Made the test work (test_server.py)
