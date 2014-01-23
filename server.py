@@ -35,11 +35,19 @@ def HTMLContentFromPath(path, url):
         return '<p>no content</p>'
     
 # Send response
-# took some code from http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
+# took some code from 
+# http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
 def handle_connection(conn):
         conn.send('HTTP/1.0 200 OK\r\n')
         conn.send("Content-type: text/html\r\n\r\n")
         conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n')
+
+        data = '';
+        #while len(data) < 1000:
+            #chunk = conn.recv(1000-len(data))
+            #if chunk == '':
+                #raise RuntimeError("socket connection broken")
+            #data = data + chunk
         data = conn.recv(1000)
 
         if data:
