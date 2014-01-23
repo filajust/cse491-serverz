@@ -22,3 +22,7 @@
 2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * added more tests to the test_server script, differentiate between GET and POST
+
+2014-01-23  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * fixed the index out of bounds error

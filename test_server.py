@@ -31,11 +31,11 @@ def test_handle_connection():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' #+ \
-                      'This is filajust\'s Web server.' + \
-                      '<p><a href="http://user-e66bde.user.msu.edu:9880/content"></a></p>' + \
-                      '<p><a href="http://user-e66bde.user.msu.edu:9880/file"></a></p>' + \
-                      '<p><a href="http://user-e66bde.user.msu.edu:9880/image"></a></p>'
+                      '<h1>Hello, world.</h1>' + \
+                      'This is filajust\'s Web server.\r\n\r\n' + \
+                      '<p><a href="/content">Content</a></p>' + \
+                      '<p><a href="/file">File</a></p>' + \
+                      '<p><a href="/image">Image</a></p>'
 
     server.handle_connection(conn)
 
@@ -46,9 +46,9 @@ def test_handle_connection_to_content():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' #+ \
+                      '<h1>Hello, world.</h1>' + \
                       'This is filajust\'s Web server.' + \
-                      '<p>content</p>'
+                      '<p>Content</p>'
 
     server.handle_connection(conn)
 
@@ -57,9 +57,9 @@ def test_handle_connection_to_image():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' #+ \
+                      '<h1>Hello, world.</h1>' + \
                       'This is filajust\'s Web server.' + \
-                      '<p>image</p>'
+                      '<p>Image</p>'
 
     server.handle_connection(conn)
 
@@ -68,8 +68,18 @@ def test_handle_connection_to_file():
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
-                      '<h1>Hello, world.</h1>' #+ \
+                      '<h1>Hello, world.</h1>' + \
                       'This is filajust\'s Web server.' + \
-                      '<p>file</p>'
+                      '<p>File</p>'
+
+    server.handle_connection(conn)
+
+def test_handle_post_request():
+    conn = FakeConnection("POST / HTTP/1.0/r/n/r/n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h1>Hello, world.</h1>' + \
+                      'This is filajust\'s Web server.'
 
     server.handle_connection(conn)

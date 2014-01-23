@@ -5,42 +5,28 @@ import time
 
 def extractPath(input):
     temp = input.splitlines()
-    temp2 = temp[0].split(' ')
-    return temp2[1]
-
-def extractUrl(input):
-    temp = input.splitlines()
-    temp2 = temp[1].split(' ')
-    return temp2[1]
-
-def isPost(input):
-    temp = input.splitlines()
-    temp2 = temp[0].split(' ')[0]
-    if temp2 == 'POST':
-        return True
-    else:
-        return False
+    return temp[0].split(' ')[1]
     
-def HTMLContentFromPath(path, url):
+def HTMLContentFromPath(path):
     if path == '/':
-        contentUrl = 'http://' + url + '/content'
-        fileUrl = 'http://' + url + '/file'
-        imageUrl = 'http://' + url + '/image'
+        contentUrl = '/content'
+        fileUrl = '/file'
+        imageUrl = '/image'
 
-        url = '<p><a href="' + \
-                contentUrl + '">' + contentUrl + '</a></p><p><a href="' + \
-                fileUrl + '">' + fileUrl + '</a></p><p><a href="' + \
-                imageUrl + '">' + imageUrl + \
+        urls = '<p><a href="' + \
+                contentUrl + '">' + 'Content' + '</a></p><p><a href="' + \
+                fileUrl + '">' + 'File' + '</a></p><p><a href="' + \
+                imageUrl + '">' + 'Image' + \
                 '</a></p>'
-        return url
+        return urls
     elif path == '/content':
-        return '<p>content</p>'
+        return '<p>Content</p>'
     elif path == '/file':
-        return '<p>file</p>'
+        return '<p>File</p>'
     elif path == '/image':
-        return '<p>image</p>'
+        return '<p>Image</p>'
     else:
-        return '<p>no content</p>'
+        return '<p>No Content</p>'
     
 # Send response
 # took some code from 
@@ -50,25 +36,17 @@ def handle_connection(conn):
         conn.send("Content-type: text/html\r\n\r\n")
         conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n')
 
-#data = '';
-#while len(data) < 1000:
-#chunk = conn.recv(100-len(data))
-#if chunk == '':
-#raise RuntimeError("socket connection broken")
-#data = data + chunk
-
         data = conn.recv(1000)
 
         if data:
-            if isPost(data):
+            request = data.splitlines()[0].split(' ')[0]
+            if request == 'POST':
                 print 'That was a post request\n'
-            else:
+            elif request == 'GET':
                 path = extractPath(data)
-                url = extractUrl(data)
+                text = HTMLContentFromPath(path)
+                conn.send(text)
 
-                text = HTMLContentFromPath(path, url)
-                if text:
-                    conn.send(text)
         conn.close()
     
 def main():
