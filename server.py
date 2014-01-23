@@ -13,6 +13,14 @@ def extractUrl(input):
     temp2 = temp[1].split(' ')
     return temp2[1]
 
+def isPost(input):
+    temp = input.splitlines()
+    temp2 = temp[0].split(' ')[0]
+    if temp2 == 'POST':
+        return True
+    else:
+        return False
+    
 def HTMLContentFromPath(path, url):
     if path == '/':
         contentUrl = 'http://' + url + '/content'
@@ -42,21 +50,25 @@ def handle_connection(conn):
         conn.send("Content-type: text/html\r\n\r\n")
         conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n')
 
-        data = '';
-        #while len(data) < 1000:
-            #chunk = conn.recv(1000-len(data))
-            #if chunk == '':
-                #raise RuntimeError("socket connection broken")
-            #data = data + chunk
+#data = '';
+#while len(data) < 1000:
+#chunk = conn.recv(100-len(data))
+#if chunk == '':
+#raise RuntimeError("socket connection broken")
+#data = data + chunk
+
         data = conn.recv(1000)
 
         if data:
-            path = extractPath(data)
-            url = extractUrl(data)
+            if isPost(data):
+                print 'That was a post request\n'
+            else:
+                path = extractPath(data)
+                url = extractUrl(data)
 
-            text = HTMLContentFromPath(path, url)
-            if text:
-                conn.send(text)
+                text = HTMLContentFromPath(path, url)
+                if text:
+                    conn.send(text)
         conn.close()
     
 def main():
