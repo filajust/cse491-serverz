@@ -14,3 +14,7 @@
 2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * Made the test work (test_server.py)
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * Added different http response for /content, /file, and /image urls

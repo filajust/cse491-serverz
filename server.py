@@ -3,12 +3,52 @@ import random
 import socket
 import time
 
+def extractPath(input):
+    temp = input.splitlines()
+    temp2 = temp[0].split(' ')
+    return temp2[1]
+
+def extractUrl(input):
+    temp = input.splitlines()
+    temp2 = temp[1].split(' ')
+    return temp2[1]
+
+def HTMLContentFromPath(path, url):
+    if path == '/':
+        contentUrl = 'http://' + url + '/content'
+        fileUrl = 'http://' + url + '/file'
+        imageUrl = 'http://' + url + '/image'
+
+        url = '<p><a href="' + \
+                contentUrl + '">' + contentUrl + '</a></p><p><a href="' + \
+                fileUrl + '">' + fileUrl + '</a></p><p><a href="' + \
+                imageUrl + '">' + imageUrl + \
+                '</a></p>'
+        return url
+    elif path == '/content':
+        return '<p>content</p>'
+    elif path == '/file':
+        return '<p>file</p>'
+    elif path == '/image':
+        return '<p>image</p>'
+    else:
+        return '<p>no content</p>'
+    
 # Send response
 # took some code from http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
 def handle_connection(conn):
         conn.send('HTTP/1.0 200 OK\r\n')
         conn.send("Content-type: text/html\r\n\r\n")
-        conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.')
+        conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n')
+        data = conn.recv(1000)
+
+        if data:
+            path = extractPath(data)
+            url = extractUrl(data)
+
+            text = HTMLContentFromPath(path, url)
+            if text:
+                conn.send(text)
         conn.close()
     
 def main():

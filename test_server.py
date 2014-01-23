@@ -33,7 +33,10 @@ def test_handle_connection():
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
                       '<h1>Hello, world.</h1>' + \
-                      'This is filajust\'s Web server.'
+                      'This is filajust\'s Web server.' + \
+                      '<p><a href="http://user-e66bde.user.msu.edu:9880/content"></a></p>' + \
+                      '<p><a href="http://user-e66bde.user.msu.edu:9880/file"></a></p>' + \
+                      '<p><a href="http://user-e66bde.user.msu.edu:9880/image"></a></p>'
 
     server.handle_connection(conn)
 
