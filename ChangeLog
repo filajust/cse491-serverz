@@ -2,7 +2,27 @@
 
  * Initialized repository, created server.py and README.
 
-2014-01-15  Justin Fila
+2014-01-15  Justin Fila  <filajust@arctic.cse.msu.edu>
  
  * Added an HTTP response and a header/body to display in the browser
  * reviewed this too.
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * Fixed some formatting and merged in changes from code review
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * Made the test work (test_server.py)
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * Added different http response for /content, /file, and /image urls
+
+2014-01-22  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * added more tests to the test_server script, differentiate between GET and POST
+
+2014-01-23  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * fixed the index out of bounds error
