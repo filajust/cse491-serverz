@@ -2,6 +2,7 @@
 import random
 import socket
 import time
+import urlparse
 
 def extractPath(input):
     temp = input.splitlines()
@@ -12,11 +13,14 @@ def HTMLContentFromPath(path):
         contentUrl = '/content'
         fileUrl = '/file'
         imageUrl = '/image'
+        formUrl = '/form'
 
-        urls = '<p><a href="' + \
+        urls = '<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n' + \
+                '<p><a href="' + \
                 contentUrl + '">' + 'Content' + '</a></p><p><a href="' + \
                 fileUrl + '">' + 'File' + '</a></p><p><a href="' + \
-                imageUrl + '">' + 'Image' + \
+                imageUrl + '">' + 'Image' + '</a></p><p><a href="' + \
+                formUrl + '">' + 'Form' + \
                 '</a></p>'
         return urls
     elif path == '/content':
@@ -25,7 +29,19 @@ def HTMLContentFromPath(path):
         return '<p>File</p>'
     elif path == '/image':
         return '<p>Image</p>'
+    elif path == '/form':
+        return '<p>Please fill in name</p>' + \
+            '<form action=\'/submit\' method=\'GET\'>' + \
+            '<input type=\'text\' name=\'firstname\'>' + \
+            '<input type=\'text\' name=\'lastname\'>' + \
+            '<input type=\'submit\' value=\'Submit\'>' + \
+            '</form>'
+    elif path.startswith('/submit'):
+        # get the query string, then use it as a paramter to get dictionary
+        res = urlparse.parse_qs(urlparse.urlparse(path).query)
+        return '<p>Hello Mr. {0} {1}</p>'.format(res['firstname'][0], res['lastname'][0])
     else:
+        print 'path: ', path
         return '<p>No Content</p>'
     
 # Send response
@@ -34,7 +50,6 @@ def HTMLContentFromPath(path):
 def handle_connection(conn):
         conn.send('HTTP/1.0 200 OK\r\n')
         conn.send("Content-type: text/html\r\n\r\n")
-        conn.send('<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n')
 
         data = conn.recv(1000)
 
