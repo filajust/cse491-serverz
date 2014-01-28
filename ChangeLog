@@ -30,3 +30,7 @@
 2014-01-26  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * added a form page and a submission page that parses the query
+
+2014-01-28  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * did the post request parsing, and added more functions

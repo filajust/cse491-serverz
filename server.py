@@ -7,42 +7,86 @@ import urlparse
 def extractPath(input):
     temp = input.splitlines()
     return temp[0].split(' ')[1]
-    
-def HTMLContentFromPath(path):
-    if path == '/':
-        contentUrl = '/content'
-        fileUrl = '/file'
-        imageUrl = '/image'
-        formUrl = '/form'
 
-        urls = '<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n' + \
-                '<p><a href="' + \
-                contentUrl + '">' + 'Content' + '</a></p><p><a href="' + \
-                fileUrl + '">' + 'File' + '</a></p><p><a href="' + \
-                imageUrl + '">' + 'Image' + '</a></p><p><a href="' + \
-                formUrl + '">' + 'Form' + \
-                '</a></p>'
-        return urls
+def index_html():
+    contentUrl = '/content'
+    fileUrl = '/file'
+    imageUrl = '/image'
+    formGetUrl = '/form'
+    formPostUrl = '/formPost'
+
+    urls = '<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n\
+            <p><a href="{0}">Content</a></p>\
+            <p><a href="{1}">File</a></p>\
+            <p><a href="{2}">Image</a></p>\
+            <p><a href="{3}">Form</a></p>\
+            <p><a href="{4}">Form (post)</a></p>'.\
+            format(contentUrl, fileUrl, imageUrl, formGetUrl, formPostUrl)
+    return urls
+
+def content_html():
+    return '<p>Content</p>'
+
+def file_html():
+    return '<p>File</p>'
+
+def image_html():
+    return '<p>Image</p>'
+
+def form_html():
+    return '<p>Please fill in name</p>\
+        <form action=\'/submit\' method=\'GET\'>\
+        First Name: <input type=\'text\' name=\'firstname\'>\
+        Last Name: <input type=\'text\' name=\'lastname\'>\
+        <input type=\'submit\' value=\'Submit\'>\
+        </form>'
+
+def form_post_html():
+    return '<p>Please fill in name</p>\
+        <form action=\'/submit\' method=\'POST\' \
+        enctype=\'application/x-www-form-urlencoded\'>\
+        First Name: <input type=\'text\' name=\'firstname\'>\
+        Last Name: <input type=\'text\' name=\'lastname\'>\
+        <input type=\'submit\' value=\'Submit\'>\
+        </form>'
+
+def submit_html(data):
+    # get the query string, then use it as a parameter to get dictionary
+    res = urlparse.parse_qs(urlparse.urlparse(data).query)
+    return '<p>Hello Mr. {0} {1}</p>'.format(res\
+            ['firstname'][0], res['lastname'][0])
+
+def error_html():
+    return '<p>No Content</p>'
+    
+def handle_get(path):
+    if path == '/':
+        return index_html()
     elif path == '/content':
-        return '<p>Content</p>'
+        return content_html()
     elif path == '/file':
-        return '<p>File</p>'
+        return file_html()
     elif path == '/image':
-        return '<p>Image</p>'
+        return image_html()
     elif path == '/form':
-        return '<p>Please fill in name</p>' + \
-            '<form action=\'/submit\' method=\'GET\'>' + \
-            '<input type=\'text\' name=\'firstname\'>' + \
-            '<input type=\'text\' name=\'lastname\'>' + \
-            '<input type=\'submit\' value=\'Submit\'>' + \
-            '</form>'
+        return form_html()
+    elif path == '/formPost':
+        return form_post_html()
     elif path.startswith('/submit'):
-        # get the query string, then use it as a paramter to get dictionary
-        res = urlparse.parse_qs(urlparse.urlparse(path).query)
-        return '<p>Hello Mr. {0} {1}</p>'.format(res['firstname'][0], res['lastname'][0])
+        return submit_html(path)
     else:
-        print 'path: ', path
-        return '<p>No Content</p>'
+        return error_html()
+
+def handle_post(data):
+    if "firstname" not in data or "lastname" not in data:
+        return '<h1>Error</h1>'
+    else:
+        # get the query string, then use it as a parameter to get dictionary 
+        # (assumes it is of type application/x-www-form-urlencoded)
+        temp = data.splitlines()
+        res = urlparse.parse_qs(temp[-1])
+        return '<p>Hello Mr. {0} {1}, thank you for using a post \
+                request</p>'.format(res['firstname'][0], res['lastname'][0])
     
 # Send response
 # took some code from 
@@ -56,10 +100,11 @@ def handle_connection(conn):
         if data:
             request = data.splitlines()[0].split(' ')[0]
             if request == 'POST':
-                print 'That was a post request\n'
+                text = handle_post(data)
+                conn.send(text)
             elif request == 'GET':
                 path = extractPath(data)
-                text = HTMLContentFromPath(path)
+                text = handle_get(path)
                 conn.send(text)
 
         conn.close()
