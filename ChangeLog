@@ -38,3 +38,7 @@
 2014-01-30  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * fixed the tests. Now works for post requests
+
+2014-01-30  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * added check for empty name variables

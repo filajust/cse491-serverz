@@ -53,8 +53,11 @@ def form_post_html():
 def submit_html(data):
     # get the query string, then use it as a parameter to get dictionary
     res = urlparse.parse_qs(urlparse.urlparse(data).query)
-    return '<p>Hello Mr. {0} {1}</p>'.format(res\
-            ['firstname'][0], res['lastname'][0])
+    if len(res) < 2: # check if the input was valid
+        return '<h1>Error</h1>'
+    else:
+        return '<p>Hello Mr. {0} {1}</p>'.format(res\
+                ['firstname'][0], res['lastname'][0])
 
 def error_html():
     return '<p>No Content</p>'
@@ -85,8 +88,11 @@ def handle_post(data):
         # (assumes it is of type application/x-www-form-urlencoded)
         temp = data.splitlines()
         res = urlparse.parse_qs(temp[-1])
-        return '<p>Hello Mr. {0} {1}, thank you for using a post \
-                request</p>'.format(res['firstname'][0], res['lastname'][0])
+        if len(res) < 2: # check if the input was valid
+            return '<h1>Error</h1>'
+        else:
+            return '<p>Hello Mr. {0} {1}, thank you for using a post \
+                    request</p>'.format(res['firstname'][0], res['lastname'][0])
     
 # Send response
 # took some code from 
