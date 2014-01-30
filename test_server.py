@@ -83,3 +83,24 @@ def test_handle_post_request():
                       'This is filajust\'s Web server.'
 
     server.handle_connection(conn)
+
+    '''
+def test_handle_form_post():
+    conn = FakeConnection("POST / HTTP/1.0/r/n/r/n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h1>Hello, world.</h1>' + \
+                      'This is filajust\'s Web server.'
+
+    server.handle_connection(conn)
+    '''
+
+def test_handle_form_get():
+    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<p>Hello Mr. Justin Johnson</p>'
+
+    server.handle_connection(conn)
