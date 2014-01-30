@@ -34,3 +34,7 @@
 2014-01-28  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * did the post request parsing, and added more functions
+
+2014-01-30  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * fixed the tests. Now works for post requests
