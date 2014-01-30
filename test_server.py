@@ -94,10 +94,10 @@ def test_handle_submit_post():
             Content-Length\n" + \
             "firstname=Test&lastname=Testing")
     expected_return = \
-               'HTTP/1.0 200 OK\r\n' + \
-               'Content-type: text/html\r\n\r\n' + \
-               '<p>Hello Mr. Test Testing, thank you for using a post \
-                request</p>'
+                   'HTTP/1.0 200 OK\r\n' + \
+                   'Content-type: text/html\r\n\r\n' + \
+                   '<p>Hello Mr. Test Testing, thank you for using a post \
+                    request</p>'
 
     server.handle_connection(conn)
 
