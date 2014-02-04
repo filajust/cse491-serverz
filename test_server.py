@@ -80,7 +80,7 @@ def test_handle_post_request():
     expected_return = \
             'HTTP/1.0 200 OK\r\n' + \
             'Content-type: text/html\r\n\r\n' + \
-            '<h1>Error</h1>'
+            '<h1>Server Error</h1>'
 
     server.handle_connection(conn)
 

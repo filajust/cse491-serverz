@@ -42,3 +42,7 @@
 2014-01-30  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * added check for empty name variables
+
+2014-02-04  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * refactored some functions
