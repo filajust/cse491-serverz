@@ -105,7 +105,6 @@ def test_handle_urlencoded_post():
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-    '''
 def test_handle_multipart_post():
     conn = FakeConnection("POST /submit HTTP/1.0\r\n\r\n\
             From: test@testy.com\
@@ -117,7 +116,7 @@ def test_handle_multipart_post():
             "-----\n" + \
             "content:  ------------------------55261788821295539881451415414\n" + \
             "Content-Disposition: form-data; name=\"files\"; filename=\"Astronaut.png\"\n" + \
-            "Content-Type: image/png"
+            "Content-Type: image/png")
 
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
@@ -127,8 +126,6 @@ def test_handle_multipart_post():
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
-    '''
-
 def test_handle_submit_get():
     conn = FakeConnection("GET /submit?firstname=Test&lastname=Testing \
             HTTP/1.0\r\n\r\n")
@@ -157,3 +154,4 @@ def test_handle_form_get():
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
