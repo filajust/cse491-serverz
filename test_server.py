@@ -162,3 +162,4 @@ def test_handle_form_get():
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
