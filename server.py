@@ -3,6 +3,11 @@ import random
 import socket
 import time
 import urlparse
+import cgi
+#try:
+    #from cStringIO import StringIO
+#except:
+from StringIO import StringIO
 
 def extractPath(input):
     temp = input.splitlines()
@@ -152,7 +157,31 @@ def form_post_multipart_html(conn):
         <input type=\'submit\' value=\'Submit\'>\
         </form>')
 
-def handle_post(data, conn):
+def handle_post(headers, content, conn):
+
+    '''
+    headers = {}
+
+    for x in range(0, 10):
+        lineDict = buf.readline().split(' ')
+        header = lineDict[0]
+        data = ' '.join(lineDict[1:])
+        headers[header] = data
+
+    print 'headers: ', headers
+    '''
+
+    d = {}
+    for line in headers:
+        k, v = line.split(': ', 1)
+        d[k.lower()] = v
+
+    environ = {}
+    environ['REQUEST_METHOD'] = 'POST'
+
+    form = cgi.FieldStorage(headers=d, fp=StringIO(content), environ=environ)
+
+    '''
     temp = data.splitlines()[9]
     content_type = temp.split(' ')[1]
 
@@ -162,6 +191,7 @@ def handle_post(data, conn):
         multipart_html(data, conn)
     else:
         error_html(conn);
+        '''
 
 # --------------------------------------------------------------------------------
 #                           handling the connection 
@@ -175,16 +205,58 @@ def handle_connection(conn):
         # conn.send("Content-type: text/html\r\n\r\n")
 
         data = conn.recv(1000)
+        print 'data: ', data
+        # buf = StringIO(data)
+
+        # requestType = buf.readline()
+
+        '''
+        1) the request line is always the first line ending with \r\n
+        2) the header sentinel is '\r\n\r\n' -- that is, you need to read headers
+           until you encounter that
+        3) you need to pass the POST content on to cgi.FieldStorage without
+           any interpretation or modification (no splitlines, etc.)
+        '''
+
+        requestType, theRest = data.split('\r\n', 1)
+        headers_temp, content = theRest.split('\r\n\r\n', 1)
+
+        headers = data(StringIO(headers_temp))
+        # headers = data(StringIO(headers_temp))   # headers can be thought as a dictionary
+
+        print 'headers: ', headers
+
+        '''
+            handle_post(conn, headers, content)      # pass to handle_post function
+        '''
 
         if data:
-            request = data.splitlines()[0].split(' ')[0]
+            request = requestType.split(' ')[0]
             if request == 'POST':
-                handle_post(data, conn)
+                handle_post(headers, content, conn)
             elif request == 'GET':
                 path = extractPath(data)
                 handle_get(path, conn)
 
         conn.close()
+
+        '''
+        POST /submit HTTP/1.1
+        Host: 14-151-67.guest.wireless.msu.edu:8373
+        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:26.0) Gecko/20100101 Firefox/26.0
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: en-US,en;q=0.5
+        Accept-Encoding: gzip, deflate
+        Referer: http://14-151-67.guest.wireless.msu.edu:8373/formPostMultipart
+        Cookie: __utma=51441333.1344247042.1333131308.1363202383.1389057237.4; __utmz=51441333.1389057237.4.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)
+        Connection: keep-alive
+        Content-Type: multipart/form-data; boundary=---------------------------12248825388225760241682999629
+        Content-Length: 119291
+
+        -----------------------------12248825388225760241682999629
+        Content-Disposition: form-data; name="files"; filename="check for rent.png"
+        Content-Type: image/png
+        '''
     
 def main():
     s = socket.socket()         # Create a socket object
