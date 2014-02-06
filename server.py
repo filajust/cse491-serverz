@@ -170,6 +170,8 @@ def handle_post(headers, conn):
     content_length = headers_dict['content-length']
     content = conn.recv(int(content_length))
 
+    print 'content: ', content
+
     form = cgi.FieldStorage(headers=headers_dict, fp=StringIO(content), environ=environ)
 
     content_type = headers_dict['content-type']
@@ -192,10 +194,11 @@ def handle_connection(conn):
 
         # credit to cameronkeif on github
         data = ''
-        while data[-4:] != '\r\n\r\n':
-            retVal = conn.recv(1)
+        while '\r\n\r\n' not in data:
+            retVal = conn.recv(10)
             data = data + retVal
 
+        print 'data: ', data
         requestType, theRest = data.split('\r\n', 1)
         headers_temp, content = theRest.split('\r\n\r\n', 1)
 
