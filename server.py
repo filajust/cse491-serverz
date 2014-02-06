@@ -80,29 +80,29 @@ def submit_html(data, conn):
         conn.send('<p>Hello Mr. {0} {1}</p>'.format(res\
                 ['firstname'][0], res['lastname'][0]))
 
-def urlencoded_html(data, conn):
+def urlencoded_html(form, conn):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send("Content-type: text/html\r\n\r\n")
 
-    if "firstname" not in data or "lastname" not in data:
-        conn.send('<h1>Server Error</h1>')
+    if "firstname" not in form or "lastname" not in form:
+        conn.send('<h1>Input Error</h1>')
     else:
         # get the query string, then use it as a parameter to get dictionary 
         # (assumes it is of type application/x-www-form-urlencoded)
-        temp = data.splitlines()
-        res = urlparse.parse_qs(temp[-1])
-        if len(res) < 2: # check if the input was valid
+        firstname = form['firstname'].value
+        lastname = form['lastname'].value
+        if not firstname or not lastname: # check if the input was valid
             conn.send('<h1>Input Error</h1>')
         else:
             conn.send('<p>Hello Mr. {0} {1}, thank you for using a post \
-                    request</p>'.format(res['firstname'][0], res['lastname'][0]))
+                    request</p>'.format(firstname, lastname))
 
-def multipart_html(data, conn):
+def multipart_html(form, conn):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send("Content-type: text/html\r\n\r\n")
 
     conn.send('<h1>multipart</h1>')
-    print 'data', data
+    print 'form: ', form['files'].value
 
 def error_html(conn):
     conn.send('HTTP/1.0 404 Not Found\r\n');
@@ -157,7 +157,7 @@ def form_post_multipart_html(conn):
         <input type=\'submit\' value=\'Submit\'>\
         </form>')
 
-def handle_post(headers, content, conn):
+def handle_post(headers, conn):
 
     '''
     headers = {}
@@ -171,27 +171,31 @@ def handle_post(headers, content, conn):
     print 'headers: ', headers
     '''
 
-    d = {}
+    headers_dict = {}
     for line in headers:
         k, v = line.split(': ', 1)
-        d[k.lower()] = v
+        headers_dict[k.lower()] = v
 
     environ = {}
     environ['REQUEST_METHOD'] = 'POST'
 
-    form = cgi.FieldStorage(headers=d, fp=StringIO(content), environ=environ)
+    # credit to bjurgess1 on github
+    content_length = headers_dict['content-length']
+    content = conn.recv(int(content_length))
 
-    '''
-    temp = data.splitlines()[9]
-    content_type = temp.split(' ')[1]
+    form = cgi.FieldStorage(headers=headers_dict, fp=StringIO(content), environ=environ)
 
-    if content_type == 'application/x-www-form-urlencoded':
-        urlencoded_html(data, conn)
-    elif content_type == 'multipart/form-data;':
-        multipart_html(data, conn)
+    print 'headers: ', headers_dict
+    content_type = headers_dict['content-type']
+
+    print 'content-type: ', content_type
+
+    if 'application/x-www-form-urlencoded' in content_type:
+        urlencoded_html(form, conn)
+    elif 'multipart/form-data;' in content_type:
+        multipart_html(form, conn)
     else:
         error_html(conn);
-        '''
 
 # --------------------------------------------------------------------------------
 #                           handling the connection 
@@ -201,14 +205,14 @@ def handle_post(headers, content, conn):
 # took some code from 
 # http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
 def handle_connection(conn):
-        # conn.send('HTTP/1.0 200 OK\r\n')
-        # conn.send("Content-type: text/html\r\n\r\n")
 
-        data = conn.recv(1000)
+        # credit to cameronkeif on github
+        data = ''
+        while data[-4:] != '\r\n\r\n':
+            retVal = conn.recv(1)
+            data = data + retVal
+
         print 'data: ', data
-        # buf = StringIO(data)
-
-        # requestType = buf.readline()
 
         '''
         1) the request line is always the first line ending with \r\n
@@ -221,42 +225,20 @@ def handle_connection(conn):
         requestType, theRest = data.split('\r\n', 1)
         headers_temp, content = theRest.split('\r\n\r\n', 1)
 
-        headers = data(StringIO(headers_temp))
-        # headers = data(StringIO(headers_temp))   # headers can be thought as a dictionary
+        headers = StringIO(headers_temp)
+        # headers = data(StringIO(headers_temp))  
 
-        print 'headers: ', headers
-
-        '''
-            handle_post(conn, headers, content)      # pass to handle_post function
-        '''
+# print 'headers: ', headers.getvalue()
 
         if data:
             request = requestType.split(' ')[0]
             if request == 'POST':
-                handle_post(headers, content, conn)
+                handle_post(headers, conn)
             elif request == 'GET':
                 path = extractPath(data)
                 handle_get(path, conn)
 
         conn.close()
-
-        '''
-        POST /submit HTTP/1.1
-        Host: 14-151-67.guest.wireless.msu.edu:8373
-        User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:26.0) Gecko/20100101 Firefox/26.0
-        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-        Accept-Language: en-US,en;q=0.5
-        Accept-Encoding: gzip, deflate
-        Referer: http://14-151-67.guest.wireless.msu.edu:8373/formPostMultipart
-        Cookie: __utma=51441333.1344247042.1333131308.1363202383.1389057237.4; __utmz=51441333.1389057237.4.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)
-        Connection: keep-alive
-        Content-Type: multipart/form-data; boundary=---------------------------12248825388225760241682999629
-        Content-Length: 119291
-
-        -----------------------------12248825388225760241682999629
-        Content-Disposition: form-data; name="files"; filename="check for rent.png"
-        Content-Type: image/png
-        '''
     
 def main():
     s = socket.socket()         # Create a socket object
