@@ -7,9 +7,9 @@ def render(filename, var_dict={}):
     env = jinja2.Environment(loader=loader)
 
     # filename to render
-    print >>sys.stderr, '** Rendering"', filename
+    # print >>sys.stderr, '** Rendering"', filename
 
-    print >>sys.stderr, '** Using vars dictionary:', var_dict
+    # print >>sys.stderr, '** Using vars dictionary:', var_dict
 
     template = env.get_template(filename)
     return template.render(var_dict)
