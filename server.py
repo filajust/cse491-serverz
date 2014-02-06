@@ -103,10 +103,14 @@ def multipart_html(form, conn):
 
     html = render.render('multipart.html')
     conn.send(html)
-# print 'form: ', form['files'].value
+    # TODO: print 'form: ', form['files'].value
+
+def send_404_html(conn):
+    conn.send('404 Not Found')
 
 def error_html(conn):
-    conn.send('HTTP/1.0 404 Not Found\r\n');
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
 
     html = render.render('error.html')
     conn.send(html)
@@ -129,7 +133,7 @@ def handle_get(path, conn):
     elif path.startswith('/submit'):
         submit_html(path, conn)
     else:
-        error_html(conn)
+        send_404_html(conn)
 
 # --------------------------------------------------------------------------------
 #                                  Posts
@@ -154,19 +158,6 @@ def form_post_multipart_html(conn):
     conn.send(html)
 
 def handle_post(headers, conn):
-
-    '''
-    headers = {}
-
-    for x in range(0, 10):
-        lineDict = buf.readline().split(' ')
-        header = lineDict[0]
-        data = ' '.join(lineDict[1:])
-        headers[header] = data
-
-    print 'headers: ', headers
-    '''
-
     headers_dict = {}
     for line in headers:
         k, v = line.split(': ', 1)
@@ -205,23 +196,11 @@ def handle_connection(conn):
             retVal = conn.recv(1)
             data = data + retVal
 
-        print 'data: ', data
-
-        '''
-        1) the request line is always the first line ending with \r\n
-        2) the header sentinel is '\r\n\r\n' -- that is, you need to read headers
-           until you encounter that
-        3) you need to pass the POST content on to cgi.FieldStorage without
-           any interpretation or modification (no splitlines, etc.)
-        '''
-
         requestType, theRest = data.split('\r\n', 1)
         headers_temp, content = theRest.split('\r\n\r\n', 1)
 
         headers = StringIO(headers_temp)
         # headers = data(StringIO(headers_temp))  
-
-# print 'headers: ', headers.getvalue()
 
         if data:
             request = requestType.split(' ')[0]
