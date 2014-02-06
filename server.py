@@ -24,8 +24,8 @@ def index_html(conn):
     conn.send("Content-type: text/html\r\n\r\n")
 
     vars_dict = {'content_url': '/content', 'file_url': '/file', 
-            'image_url': '/image', 'form_url': '/form', 'form_post_url': 'formPost',
-            'form_post_multipart_url': 'formPostMultipart'}
+            'image_url': '/image', 'form_url': '/form', 'form_post_url': '/formPost',
+            'form_post_multipart_url': '/formPostMultipart'}
     urls = render.render('index.html', vars_dict)
 
     conn.send(urls);
@@ -166,15 +166,17 @@ def handle_post(headers, conn):
     environ = {}
     environ['REQUEST_METHOD'] = 'POST'
 
+    content = ''
     # credit to bjurgess1 on github
-    content_length = headers_dict['content-length']
-    content = conn.recv(int(content_length))
-
-    print 'content: ', content
+    if 'content-length' in headers_dict:
+        content_length = headers_dict['content-length']
+        content = conn.recv(int(content_length))
 
     form = cgi.FieldStorage(headers=headers_dict, fp=StringIO(content), environ=environ)
 
-    content_type = headers_dict['content-type']
+    content_type = ''
+    if 'content-type' in headers_dict:
+        content_type = headers_dict['content-type']
 
     if 'application/x-www-form-urlencoded' in content_type:
         urlencoded_html(form, conn)
@@ -195,10 +197,9 @@ def handle_connection(conn):
         # credit to cameronkeif on github
         data = ''
         while '\r\n\r\n' not in data:
-            retVal = conn.recv(10)
+            retVal = conn.recv(1)
             data = data + retVal
 
-        print 'data: ', data
         requestType, theRest = data.split('\r\n', 1)
         headers_temp, content = theRest.split('\r\n\r\n', 1)
 

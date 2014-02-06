@@ -47,6 +47,10 @@
 
  * refactored some functions
 
-2014-02-04  Justin Fila  <filajust@arctic.cse.msu.edu>
+2014-06-04  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * made templating html work, added multipart post, recv works for arbitrary data
+
+2014-06-04  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * fixed tests
