@@ -34,8 +34,12 @@ def submit(conn, firstname, lastname):
 
 def handle_connection(conn):
     recieve = conn.recv(1000)
+    # ^^ @comment - receive spelled incorrectly
     recieve = recieve.split('\n')
     con = recieve[-1]
+    #             ^^ @comment - what if what you want isn't at the 
+    #                           end of the body? (hint: I had that 
+    #                           error)
     recieve = recieve[0].split()
     method = recieve[0]
     path = recieve[1]
@@ -46,6 +50,8 @@ def handle_connection(conn):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send('Content-type: text/html\r\n')
     conn.send('\r\n')
+    #   ^^ @comment - what if it is an incorrect url? Would you
+    #                 want to send a 404 response?
 
     if method == 'GET':
         if path == '/':
@@ -54,6 +60,8 @@ def handle_connection(conn):
             content(conn)
         elif path == '/file':
             file(conn)
+            # ^^ @comment - is file the name of a different
+            #               function call?
         elif path == '/image':
             image(conn)
         elif path == '/form':
