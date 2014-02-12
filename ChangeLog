@@ -42,3 +42,15 @@
 2014-01-30  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * added check for empty name variables
+
+2014-02-04  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * refactored some functions
+
+2014-06-04  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * made templating html work, added multipart post, recv works for arbitrary data
+
+2014-06-04  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * fixed tests

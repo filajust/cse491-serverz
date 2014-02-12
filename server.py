@@ -3,115 +3,216 @@ import random
 import socket
 import time
 import urlparse
+import cgi
+import render
+from StringIO import StringIO
+
+# --------------------------------------------------------------------------------
+#                                Functions 
+# --------------------------------------------------------------------------------
 
 def extractPath(input):
     temp = input.splitlines()
     return temp[0].split(' ')[1]
 
-def index_html():
-    contentUrl = '/content'
-    fileUrl = '/file'
-    imageUrl = '/image'
-    formGetUrl = '/form'
-    formPostUrl = '/formPost'
+# --------------------------------------------------------------------------------
+#                                 Gets 
+# --------------------------------------------------------------------------------
 
-    urls = '<h1>Hello, world.</h1>This is filajust\'s Web server.\r\n\r\n\
-            <p><a href="{0}">Content</a></p>\
-            <p><a href="{1}">File</a></p>\
-            <p><a href="{2}">Image</a></p>\
-            <p><a href="{3}">Form</a></p>\
-            <p><a href="{4}">Form (post)</a></p>'.\
-            format(contentUrl, fileUrl, imageUrl, formGetUrl, formPostUrl)
-    return urls
+def index_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
 
-def content_html():
-    return '<p>Content</p>'
+    vars_dict = {'content_url': '/content', 'file_url': '/file', 
+            'image_url': '/image', 'form_url': '/form', 'form_post_url': '/formPost',
+            'form_post_multipart_url': '/formPostMultipart'}
+    urls = render.render('index.html', vars_dict)
 
-def file_html():
-    return '<p>File</p>'
+    conn.send(urls);
 
-def image_html():
-    return '<p>Image</p>'
+def content_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
 
-def form_html():
-    return '<p>Please fill in name</p>\
-        <form action=\'/submit\' method=\'GET\'>\
-        First Name: <input type=\'text\' name=\'firstname\'>\
-        Last Name: <input type=\'text\' name=\'lastname\'>\
-        <input type=\'submit\' value=\'Submit\'>\
-        </form>'
+    html = render.render('content.html')
+    conn.send(html)
 
-def form_post_html():
-    return '<p>Please fill in name</p>\
-        <form action=\'/submit\' method=\'POST\' \
-        enctype=\'application/x-www-form-urlencoded\'>\
-        First Name: <input type=\'text\' name=\'firstname\'>\
-        Last Name: <input type=\'text\' name=\'lastname\'>\
-        <input type=\'submit\' value=\'Submit\'>\
-        </form>'
+def file_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
 
-def submit_html(data):
+    html = render.render('file.html')
+    conn.send(html)
+
+def image_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    html = render.render('image.html')
+    conn.send(html)
+
+def form_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    vars_dict = {'submit_url': '/submit'}
+
+    html = render.render('form.html', vars_dict)
+    conn.send(html)
+
+def submit_html(data, conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    html = ''
+
     # get the query string, then use it as a parameter to get dictionary
     res = urlparse.parse_qs(urlparse.urlparse(data).query)
     if len(res) < 2: # check if the input was valid
-        return '<h1>Error</h1>'
+        html = render.render('error.html')
     else:
-        return '<p>Hello Mr. {0} {1}</p>'.format(res\
-                ['firstname'][0], res['lastname'][0])
+        vars_dict = {'firstname': res['firstname'][0], 
+            'lastname': res['lastname'][0]}
+        html = render.render('submit.html', vars_dict)
 
-def error_html():
-    return '<p>No Content</p>'
-    
-def handle_get(path):
-    if path == '/':
-        return index_html()
-    elif path == '/content':
-        return content_html()
-    elif path == '/file':
-        return file_html()
-    elif path == '/image':
-        return image_html()
-    elif path == '/form':
-        return form_html()
-    elif path == '/formPost':
-        return form_post_html()
-    elif path.startswith('/submit'):
-        return submit_html(path)
-    else:
-        return error_html()
+    conn.send(html)
 
-def handle_post(data):
-    if "firstname" not in data or "lastname" not in data:
-        return '<h1>Error</h1>'
+def urlencoded_html(form, conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    html = ''
+    if "firstname" not in form or "lastname" not in form:
+        html = render.render('error.html')
     else:
         # get the query string, then use it as a parameter to get dictionary 
         # (assumes it is of type application/x-www-form-urlencoded)
-        temp = data.splitlines()
-        res = urlparse.parse_qs(temp[-1])
-        if len(res) < 2: # check if the input was valid
-            return '<h1>Error</h1>'
+        firstname = form['firstname'].value
+        lastname = form['lastname'].value
+        if not firstname or not lastname: # check if the input was valid
+            html = render.render('error.html')
         else:
-            return '<p>Hello Mr. {0} {1}, thank you for using a post \
-                    request</p>'.format(res['firstname'][0], res['lastname'][0])
+            vars_dict = {'firstname': firstname, 'lastname': lastname}
+            html = render.render('urlencoded.html', vars_dict)
+
+    conn.send(html)
+
+def multipart_html(form, conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    html = render.render('multipart.html')
+    conn.send(html)
+    # TODO: print 'form: ', form['files'].value
+
+def send_404_html(conn):
+    conn.send('404 Not Found')
+
+def error_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    html = render.render('error.html')
+    conn.send(html)
+    
+def handle_get(path, conn):
+    if path == '/':
+        index_html(conn)
+    elif path == '/content':
+        content_html(conn)
+    elif path == '/file':
+        file_html(conn)
+    elif path == '/image':
+        image_html(conn)
+    elif path == '/form':
+        form_html(conn)
+    elif path == '/formPost':
+        form_post_html(conn)
+    elif path == '/formPostMultipart':
+        form_post_multipart_html(conn)
+    elif path.startswith('/submit'):
+        submit_html(path, conn)
+    else:
+        send_404_html(conn)
+
+# --------------------------------------------------------------------------------
+#                                  Posts
+# --------------------------------------------------------------------------------
+
+def form_post_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    vars_dict = {'submit_url': '/submit'}
+
+    html = render.render('form_post.html', vars_dict)
+    conn.send(html)
+
+def form_post_multipart_html(conn):
+    conn.send('HTTP/1.0 200 OK\r\n')
+    conn.send("Content-type: text/html\r\n\r\n")
+
+    vars_dict = {'submit_url': '/submit'}
+
+    html = render.render('form_post_multipart.html', vars_dict)
+    conn.send(html)
+
+def handle_post(headers, conn):
+    headers_dict = {}
+    for line in headers:
+        k, v = line.split(': ', 1)
+        headers_dict[k.lower()] = v
+
+    environ = {}
+    environ['REQUEST_METHOD'] = 'POST'
+
+    content = ''
+    # credit to bjurgess1 on github
+    if 'content-length' in headers_dict:
+        content_length = headers_dict['content-length']
+        content = conn.recv(int(content_length))
+
+    form = cgi.FieldStorage(headers=headers_dict, fp=StringIO(content), environ=environ)
+
+    content_type = ''
+    if 'content-type' in headers_dict:
+        content_type = headers_dict['content-type']
+
+    if 'application/x-www-form-urlencoded' in content_type:
+        urlencoded_html(form, conn)
+    elif 'multipart/form-data;' in content_type:
+        multipart_html(form, conn)
+    else:
+        error_html(conn);
+
+# --------------------------------------------------------------------------------
+#                           handling the connection 
+# --------------------------------------------------------------------------------
     
 # Send response
 # took some code from 
 # http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
 def handle_connection(conn):
-        conn.send('HTTP/1.0 200 OK\r\n')
-        conn.send("Content-type: text/html\r\n\r\n")
 
-        data = conn.recv(1000)
+        # credit to cameronkeif on github
+        data = ''
+        while '\r\n\r\n' not in data:
+            retVal = conn.recv(1)
+            data = data + retVal
+
+        requestType, theRest = data.split('\r\n', 1)
+        headers_temp, content = theRest.split('\r\n\r\n', 1)
+
+        headers = StringIO(headers_temp)
+        # headers = data(StringIO(headers_temp))  
 
         if data:
-            request = data.splitlines()[0].split(' ')[0]
+            request = requestType.split(' ')[0]
             if request == 'POST':
-                text = handle_post(data)
-                conn.send(text)
+                handle_post(headers, conn)
             elif request == 'GET':
                 path = extractPath(data)
-                text = handle_get(path)
-                conn.send(text)
+                handle_get(path, conn)
 
         conn.close()
     
