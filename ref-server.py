@@ -4,7 +4,7 @@ import random
 
 from wsgiref.simple_server import make_server
 
-from app import make_app
+from app_test import make_app
 
 ###
 
