@@ -46,13 +46,17 @@ def getEnvironData(conn):
         retVal = conn.recv(1)
         data = data + retVal
 
+    print 'data: ', data
     requestType, theRest = data.split('\r\n', 1)
+    print 'theRest: ', theRest
     headers_temp, content = theRest.split('\r\n\r\n', 1)
 
+    headers_dict = {}
     headers = StringIO(headers_temp)
 
-    headers_dict = {}
+    print 'headers: ', headers.getvalue()
     for line in headers:
+        print 'line: ', line
         k, v = line.split(': ', 1)
         headers_dict[k.lower()] = v
 

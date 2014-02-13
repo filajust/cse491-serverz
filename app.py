@@ -113,7 +113,6 @@ def form_post_multipart_html(form):
     return html
     # TODO: print 'form: ', form['files'].value
 
-# def handle_post(headers, conn):
 def handle_post(environ):
     headers = {}
     for k in environ.keys():
