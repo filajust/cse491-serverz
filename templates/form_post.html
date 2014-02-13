@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <p>Please fill in name</p>
 
 <form action='{{ submit_url }}' method='POST'
@@ -6,3 +10,5 @@
     Last Name: <input type='text' name='lastname'>
     <input type='submit' value='Submit'>
 </form>
+
+{% endblock %}
