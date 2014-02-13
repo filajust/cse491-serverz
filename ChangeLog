@@ -58,3 +58,7 @@
 2014-02-13  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * made server work like wsgi server
+
+2014-02-13  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * html templates inherit from base.html now
