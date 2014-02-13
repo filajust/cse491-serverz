@@ -8,7 +8,6 @@ import urlparse
 import cgi
 import render
 from StringIO import StringIO
-from wsgiref.simple_server import make_server
 from app import make_app
 
 # --------------------------------------------------------------------------------
@@ -46,19 +45,18 @@ def getEnvironData(conn):
         retVal = conn.recv(1)
         data = data + retVal
 
-    print 'data: ', data
     requestType, theRest = data.split('\r\n', 1)
-    print 'theRest: ', theRest
     headers_temp, content = theRest.split('\r\n\r\n', 1)
 
     headers_dict = {}
     headers = StringIO(headers_temp)
 
-    print 'headers: ', headers.getvalue()
     for line in headers:
-        print 'line: ', line
-        k, v = line.split(': ', 1)
-        headers_dict[k.lower()] = v
+        if ':' in line:
+            k, v = line.split(': ', 1)
+            headers_dict[k.lower()] = v
+        else:
+            break
 
     request = requestType.split(' ')[0]
     environ['REQUEST_METHOD'] = request

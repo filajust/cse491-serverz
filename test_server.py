@@ -26,21 +26,13 @@ class FakeConnection(object):
         self.is_closed = True
 
 # Test a basic GET call.
-'''
 def test_handle_connection():
     conn = FakeConnection("GET / HTTP/1.0\r\n \
             \r\n\r\n")
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
     'Content-type: text/html\r\n\r\n' + \
-    '<h1>Hello, world.</h1>\n\n' + \
-    'This is filajust\'s Web server.\n\n' + \
-    '<p><a href="/content">Content</a></p>\n' + \
-    '<p><a href="/file">File</a></p>\n' + \
-    '<p><a href="/image">Image</a></p>\n' + \
-    '<p><a href="/form">Form</a></p>\n' + \
-    '<p><a href="/formPost">Form (post)</a></p>\n' + \
-    '<p><a href="/formPostMultipart">Form (post multipart)</a></p>'
+    '<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>Justins web server</title>\n\n\n</head>\n<body>\n\n\n<h1>Hello, world.</h1>\n\nThis is filajust\'s Web server.\n\n<p><a href="/content">Content</a></p>\n<p><a href="/file">File</a></p>\n<p><a href="/image">Image</a></p>\n<p><a href="/form">Form</a></p>\n<p><a href="/formPost">Form (post)</a></p>\n<p><a href="/formPostMultipart">Form (post multipart)</a></p>\n\n\n</body>\n</html>'
 
     server.handle_connection(conn)
 
@@ -52,7 +44,7 @@ def test_handle_connection_to_content():
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
     'Content-type: text/html\r\n\r\n' + \
-    '<p>Content</p>'
+    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>Content</title>\n\n\n</head>\n<body>\n\n\n<p>Content</p>\n\n\n</body>\n</html>"
 
     server.handle_connection(conn)
 
@@ -64,7 +56,7 @@ def test_handle_connection_to_image():
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
     'Content-type: text/html\r\n\r\n' + \
-    '<p>Image</p>'
+    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>Image</title>\n\n\n</head>\n<body>\n\n\n<p>Image</p>\n\n\n</body>\n</html>"
 
     server.handle_connection(conn)
 
@@ -76,12 +68,11 @@ def test_handle_connection_to_file():
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
     'Content-type: text/html\r\n\r\n' + \
-    '<p>File</p>'
+    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>File</title>\n\n\n</head>\n<body>\n\n\n<p>File</p>\n\n\n</body>\n</html>"
 
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
-    '''
 
 '''
 def test_handle_error_post_request():
@@ -113,7 +104,6 @@ def test_handle_urlencoded_post():
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-'''
 def test_handle_multipart_post():
     conn = FakeConnection("POST /submit HTTP/1.0\r\n" + \
             "From: test@testy.com\n" + \
@@ -142,32 +132,20 @@ def test_handle_submit_get():
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
     'Content-type: text/html\r\n\r\n' + \
-    '<p>Hello Mr. Test Testing</p>'
+    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>Submit</title>\n\n\n</head>\n<body>\n\n\n<p>Hello Mr. Test Testing</p>\n\n\n</body>\n</html>"
 
     server.handle_connection(conn)
-
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-'''
 
-'''
 def test_handle_form_get():
     conn = FakeConnection("GET /form HTTP/1.0\r\n\n\r\n\r\n")
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \
     'Content-type: text/html\r\n\r\n' + \
-    '<p>Please fill in name</p>\n' + \
-    '<form action=\'/submit\' method=\'GET\'>\n' + \
-    '    First Name: <input type=\'text\' name=\'firstname\'>\n' + \
-    '    Last Name: <input type=\'text\' name=\'lastname\'>\n' + \
-    '    <input type=\'submit\' value=\'Submit\'>\n' + \
-    '</form>'
+    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>Form</title>\n\n\n</head>\n<body>\n\n\n<p>Please fill in name</p>\n<form action='/submit' method='GET'>\n    First Name: <input type='text' name='firstname'>\n    Last Name: <input type='text' name='lastname'>\n    <input type='submit' value='Submit'>\n</form>\n\n\n</body>\n</html>"
 
     server.handle_connection(conn)
 
-    print 'conn.sent: ', repr(conn.sent)
-    print 'expected_return: ', repr(expected_return)
-
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-'''
