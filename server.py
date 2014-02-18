@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os
+import sys
 import random
 import socket
 import time
@@ -6,214 +8,116 @@ import urlparse
 import cgi
 import render
 from StringIO import StringIO
+from app import make_app
 
 # --------------------------------------------------------------------------------
 #                                Functions 
 # --------------------------------------------------------------------------------
 
-def extractPath(input):
-    temp = input.splitlines()
+def extractPostData(conn, environ, headers_dict):
+    content_length = headers_dict['content-length']
+    data = conn.recv(int(content_length))
+    environ['PATH_INFO'] = '/file'
+    environ['CONTENT_LENGTH'] = content_length
+    environ['QUERY_STRING'] = data
+    environ['CONTENT_TYPE'] = headers_dict['content-type']
+    environ['wsgi.input'] = StringIO(data)
+
+def extractGetData(conn, environ, data):
+    environ['PATH_INFO'] = extractPath(data)
+    environ['CONTENT_LENGTH'] = 0
+    environ['QUERY_STRING'] = ''
+    environ['CONTENT_TYPE'] = 'text/html'
+
+def extractPath(text):
+    temp = text.splitlines()
     return temp[0].split(' ')[1]
 
-# --------------------------------------------------------------------------------
-#                                 Gets 
-# --------------------------------------------------------------------------------
-
-def index_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    vars_dict = {'content_url': '/content', 'file_url': '/file', 
-            'image_url': '/image', 'form_url': '/form', 'form_post_url': '/formPost',
-            'form_post_multipart_url': '/formPostMultipart'}
-    urls = render.render('index.html', vars_dict)
-
-    conn.send(urls);
-
-def content_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = render.render('content.html')
-    conn.send(html)
-
-def file_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = render.render('file.html')
-    conn.send(html)
-
-def image_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = render.render('image.html')
-    conn.send(html)
-
-def form_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    vars_dict = {'submit_url': '/submit'}
-
-    html = render.render('form.html', vars_dict)
-    conn.send(html)
-
-def submit_html(data, conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = ''
-
-    # get the query string, then use it as a parameter to get dictionary
-    res = urlparse.parse_qs(urlparse.urlparse(data).query)
-    if len(res) < 2: # check if the input was valid
-        html = render.render('error.html')
-    else:
-        vars_dict = {'firstname': res['firstname'][0], 
-            'lastname': res['lastname'][0]}
-        html = render.render('submit.html', vars_dict)
-
-    conn.send(html)
-
-def urlencoded_html(form, conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = ''
-    if "firstname" not in form or "lastname" not in form:
-        html = render.render('error.html')
-    else:
-        # get the query string, then use it as a parameter to get dictionary 
-        # (assumes it is of type application/x-www-form-urlencoded)
-        firstname = form['firstname'].value
-        lastname = form['lastname'].value
-        if not firstname or not lastname: # check if the input was valid
-            html = render.render('error.html')
-        else:
-            vars_dict = {'firstname': firstname, 'lastname': lastname}
-            html = render.render('urlencoded.html', vars_dict)
-
-    conn.send(html)
-
-def multipart_html(form, conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = render.render('multipart.html')
-    conn.send(html)
-    # TODO: print 'form: ', form['files'].value
-
-def send_404_html(conn):
-    conn.send('404 Not Found')
-
-def error_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    html = render.render('error.html')
-    conn.send(html)
-    
-def handle_get(path, conn):
-    if path == '/':
-        index_html(conn)
-    elif path == '/content':
-        content_html(conn)
-    elif path == '/file':
-        file_html(conn)
-    elif path == '/image':
-        image_html(conn)
-    elif path == '/form':
-        form_html(conn)
-    elif path == '/formPost':
-        form_post_html(conn)
-    elif path == '/formPostMultipart':
-        form_post_multipart_html(conn)
-    elif path.startswith('/submit'):
-        submit_html(path, conn)
-    else:
-        send_404_html(conn)
-
-# --------------------------------------------------------------------------------
-#                                  Posts
-# --------------------------------------------------------------------------------
-
-def form_post_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    vars_dict = {'submit_url': '/submit'}
-
-    html = render.render('form_post.html', vars_dict)
-    conn.send(html)
-
-def form_post_multipart_html(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send("Content-type: text/html\r\n\r\n")
-
-    vars_dict = {'submit_url': '/submit'}
-
-    html = render.render('form_post_multipart.html', vars_dict)
-    conn.send(html)
-
-def handle_post(headers, conn):
-    headers_dict = {}
-    for line in headers:
-        k, v = line.split(': ', 1)
-        headers_dict[k.lower()] = v
-
+# Send response
+# took some code from 
+# http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
+def getEnvironData(conn):
     environ = {}
-    environ['REQUEST_METHOD'] = 'POST'
 
-    content = ''
-    # credit to bjurgess1 on github
-    if 'content-length' in headers_dict:
-        content_length = headers_dict['content-length']
-        content = conn.recv(int(content_length))
+    # credit to cameronkeif on github
+    data = ''
+    while '\r\n\r\n' not in data:
+        retVal = conn.recv(1)
+        data = data + retVal
 
-    form = cgi.FieldStorage(headers=headers_dict, fp=StringIO(content), environ=environ)
+    requestType, theRest = data.split('\r\n', 1)
+    headers_temp, content = theRest.split('\r\n\r\n', 1)
 
-    content_type = ''
-    if 'content-type' in headers_dict:
-        content_type = headers_dict['content-type']
+    headers_dict = {}
+    headers = StringIO(headers_temp)
 
-    if 'application/x-www-form-urlencoded' in content_type:
-        urlencoded_html(form, conn)
-    elif 'multipart/form-data;' in content_type:
-        multipart_html(form, conn)
-    else:
-        error_html(conn);
+    for line in headers:
+        if ':' in line:
+            k, v = line.split(': ', 1)
+            headers_dict[k.lower()] = v
+        else:
+            break
+
+    request = requestType.split(' ')[0]
+    environ['REQUEST_METHOD'] = request
+    if request == 'POST':
+        extractPostData(conn, environ, headers_dict)
+    elif request == 'GET':
+        extractGetData(conn, environ, data)
+
+    return environ
 
 # --------------------------------------------------------------------------------
 #                           handling the connection 
 # --------------------------------------------------------------------------------
     
-# Send response
-# took some code from 
-# http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
+# referenced bjurgess1 for solution
 def handle_connection(conn):
 
-        # credit to cameronkeif on github
-        data = ''
-        while '\r\n\r\n' not in data:
-            retVal = conn.recv(1)
-            data = data + retVal
+    headers_set = []
+    headers_sent = []
 
-        requestType, theRest = data.split('\r\n', 1)
-        headers_temp, content = theRest.split('\r\n\r\n', 1)
+    def write(data):
+        out = StringIO()
+        if not headers_set:
+            raise AssertionError("write() before start_response()")
 
-        headers = StringIO(headers_temp)
-        # headers = data(StringIO(headers_temp))  
+        elif not headers_sent:
+            # Before the first output, send the stored headers
+            status, response_headers = headers_sent[:] = headers_set
+            out.write('HTTP/1.0 %s\r\n' % status)
+            for header in response_headers:
+                out.write('%s: %s\r\n' % header)
+            out.write('\r\n')
 
-        if data:
-            request = requestType.split(' ')[0]
-            if request == 'POST':
-                handle_post(headers, conn)
-            elif request == 'GET':
-                path = extractPath(data)
-                handle_get(path, conn)
+        out.write(data)
+        conn.send(out.getvalue())
 
+    def start_response(status, response_headers, exc_info=None):
+        if exc_info:
+            try:
+                if headers_sent:
+                    # Re-raise original exception if headers sent
+                    raise exc_info[0], exc_info[1], exc_info[2]
+            finally:
+                exc_info = None     # avoid dangling circular ref
+        elif headers_set:
+            raise AssertionError("Headers already set!")
+
+        headers_set[:] = [status, response_headers]
+        return write
+
+
+    the_wsgi_app = make_app()
+    environ = getEnvironData(conn)
+    result = the_wsgi_app(environ, start_response)
+
+    try:
+        if result:
+            write(result)
+        if not headers_sent:
+            write('')
+    finally:
         conn.close()
     
 def main():
@@ -234,6 +138,7 @@ def main():
         
         print 'Got connection from', client_host, client_port
         handle_connection(c)
+
     
 if __name__ == '__main__':
     main()

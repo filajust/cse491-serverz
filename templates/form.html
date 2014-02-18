@@ -1,6 +1,18 @@
+{% extends "base.html" %}
+
+{% block header %}
+
+<title>Form</title>
+
+{% endblock %}
+
+{% block content%}
+
 <p>Please fill in name</p>
 <form action='{{ submit_url }}' method='GET'>
     First Name: <input type='text' name='firstname'>
     Last Name: <input type='text' name='lastname'>
     <input type='submit' value='Submit'>
 </form>
+
+{% endblock %}
