@@ -153,6 +153,13 @@ def handle_connection(conn):
     except: # TODO: not sure if this is best way to do this
         pass
 
+    ############ WHEN USING VALIDATOR ##############
+
+    # result.close() # not sure why I have to 'close' this when
+                     # using validator, but it threw an error
+
+    ###############################################
+
     conn.close()
     
 def main():
