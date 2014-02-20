@@ -204,7 +204,7 @@ def handle_connection(conn):
         return write
 
 
-    the_wsgi_app = app.make_app()
+    the_wsgi_app = make_app()
     environ = getEnvironData(conn)
     result = the_wsgi_app(environ, start_response)
 
