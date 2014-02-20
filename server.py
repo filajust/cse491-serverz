@@ -8,26 +8,39 @@ import urlparse
 import cgi
 import render
 from StringIO import StringIO
-from app import make_app
+# from app import make_app
+import quixote
+from quixote.demo import create_publisher
 
 # --------------------------------------------------------------------------------
 #                                Functions 
 # --------------------------------------------------------------------------------
 
+_the_app = None
+
+def make_app():
+    global _the_app
+
+    if _the_app is None:
+        p = create_publisher()
+        _the_app = quixote.get_wsgi_app()
+
+    return _the_app
+
 def extractPostData(conn, environ, headers_dict):
     content_length = headers_dict['content-length']
     data = conn.recv(int(content_length))
-    environ['PATH_INFO'] = '/file'
     environ['CONTENT_LENGTH'] = content_length
-    environ['QUERY_STRING'] = data
     environ['CONTENT_TYPE'] = headers_dict['content-type']
+    environ['SCRIPT_NAME'] = ''
     environ['wsgi.input'] = StringIO(data)
 
 def extractGetData(conn, environ, data):
-    environ['PATH_INFO'] = extractPath(data)
     environ['CONTENT_LENGTH'] = 0
-    environ['QUERY_STRING'] = ''
     environ['CONTENT_TYPE'] = 'text/html'
+    environ['SCRIPT_NAME'] = ''
+    content = ''
+    environ['wsgi.input'] = StringIO(content)
 
 def extractPath(text):
     temp = text.splitlines()
@@ -58,6 +71,14 @@ def getEnvironData(conn):
         else:
             break
 
+    request, PATH, \
+    environ['SERVER_PROTOCOL'] = requestType.split(' ')
+
+    PATH = urlparse.urlparse(PATH)
+
+    environ['PATH_INFO'] = PATH.path
+    environ['QUERY_STRING'] = PATH.query
+
     request = requestType.split(' ')[0]
     environ['REQUEST_METHOD'] = request
     if request == 'POST':
@@ -67,13 +88,86 @@ def getEnvironData(conn):
 
     return environ
 
+def getRequest(conn):
+    request = ''
+    while True:
+        request_temp = ''
+        try:
+            conn.settimeout(2)
+            request_temp = conn.recv(2048)
+        except:
+            break
+        request += request_temp
+        if len(request_temp) < 2048:
+            break
+    return request
+
+
+def createEnviron(conn):
+    environ = {}
+    environ['REQUEST_METHOD'] = ''
+    environ['PATH_INFO'] = ''
+    environ['SERVER_PROTOCOL'] = ''
+    environ['SCRIPT_NAME'] = ''
+    environ['wsgi.input'] = StringIO('')
+    environ['QUERY_STRING'] = ''
+    environ['CONTENT_LENGTH'] = '0'
+    environ['CONTENT_TYPE'] = 'text/html'
+    environ['SERVER_NAME'] = ''
+    environ['SERVER_PORT'] = ''
+    environ['wsgi.version'] = ('',)
+    environ['wsgi.errors'] = StringIO()
+    environ['wsgi.multithread'] = 0
+    environ['wsgi.multiprocess'] = 0
+    environ['wsgi.run_once'] = 0
+    environ['wsgi.url_scheme'] = 'http'
+    
+    request = getRequest(conn)
+    if request != '':
+        request_headers, request_body = request.split('\r\n\r\n', 1)
+
+        headers_string = ''
+        request_line = 0
+        try:
+            request_line, headers_string = request_headers.split('\r\n', 1)
+        except:
+            request_line = request_headers
+            headers_string = ''
+
+        environ['REQUEST_METHOD'], PATH, \
+        environ['SERVER_PROTOCOL'] = request_line.split(' ')
+
+        PATH = urlparse.urlparse(PATH)
+
+        environ['PATH_INFO'] = PATH.path
+        environ['QUERY_STRING'] = PATH.query
+        
+        headers = []
+        if headers_string != '':
+            headers = headers_string.split('\r\n')
+
+        headerDict = {}
+        for line in headers:
+            k, v = line.split(': ', 1)
+            headerDict[k.lower()] = v
+
+        if 'content-length' in headerDict.keys():
+            environ['CONTENT_LENGTH'] = headerDict['content-length']
+        
+        environ['wsgi.input'] = StringIO(request_body)
+
+        if 'content-type' in headerDict.keys():
+            environ['CONTENT_TYPE'] = headerDict['content-type']
+        
+            
+    return environ
+
 # --------------------------------------------------------------------------------
 #                           handling the connection 
 # --------------------------------------------------------------------------------
     
 # referenced bjurgess1 for solution
 def handle_connection(conn):
-
     headers_set = []
     headers_sent = []
 
@@ -105,6 +199,7 @@ def handle_connection(conn):
             raise AssertionError("Headers already set!")
 
         headers_set[:] = [status, response_headers]
+
         return write
 
 
@@ -113,8 +208,8 @@ def handle_connection(conn):
     result = the_wsgi_app(environ, start_response)
 
     try:
-        if result:
-            write(result)
+        for item in result:
+            write(item)
         if not headers_sent:
             write('')
     finally:
@@ -122,7 +217,19 @@ def handle_connection(conn):
     
 def main():
     s = socket.socket()         # Create a socket object
-    host = socket.getfqdn() # Get local machine name
+    host = '' 
+    try:
+        host = socket.getfqdn()     # Get local machine name
+        # print 'host: ', host
+    except socket.gaierror, e:
+        try:
+            host = socket.gethostbyaddr(u'localhost')
+            # print 'host2: ', host
+        except:
+            pass
+    except:
+        pass
+
     port = random.randint(8000, 9999)
     s.bind((host, port))        # Bind to the port
 
