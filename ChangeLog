@@ -62,3 +62,8 @@
 2014-02-13  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * html templates inherit from base.html now
+
+2014-02-20  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * added quixote wsgi app, made images and plain text work in my app, added
+ * validation to the wsgi app

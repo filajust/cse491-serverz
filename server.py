@@ -12,6 +12,8 @@ from StringIO import StringIO
 import app
 import quixote
 from quixote.demo import create_publisher
+from wsgiref.validate import validator
+from wsgiref.simple_server import make_server
 
 # --------------------------------------------------------------------------------
 #                                Functions 
@@ -24,6 +26,7 @@ def make_app():
 
     if _the_app is None:
         p = create_publisher()
+        p.is_thread_safe = True   # hack..
         _the_app = quixote.get_wsgi_app()
 
     return _the_app
@@ -89,80 +92,6 @@ def getEnvironData(conn):
 
     return environ
 
-def getRequest(conn):
-    request = ''
-    while True:
-        request_temp = ''
-        try:
-            conn.settimeout(2)
-            request_temp = conn.recv(2048)
-        except:
-            break
-        request += request_temp
-        if len(request_temp) < 2048:
-            break
-    return request
-
-
-def createEnviron(conn):
-    environ = {}
-    environ['REQUEST_METHOD'] = ''
-    environ['PATH_INFO'] = ''
-    environ['SERVER_PROTOCOL'] = ''
-    environ['SCRIPT_NAME'] = ''
-    environ['wsgi.input'] = StringIO('')
-    environ['QUERY_STRING'] = ''
-    environ['CONTENT_LENGTH'] = '0'
-    environ['CONTENT_TYPE'] = 'text/html'
-    environ['SERVER_NAME'] = ''
-    environ['SERVER_PORT'] = ''
-    environ['wsgi.version'] = ('',)
-    environ['wsgi.errors'] = StringIO()
-    environ['wsgi.multithread'] = 0
-    environ['wsgi.multiprocess'] = 0
-    environ['wsgi.run_once'] = 0
-    environ['wsgi.url_scheme'] = 'http'
-    
-    request = getRequest(conn)
-    if request != '':
-        request_headers, request_body = request.split('\r\n\r\n', 1)
-
-        headers_string = ''
-        request_line = 0
-        try:
-            request_line, headers_string = request_headers.split('\r\n', 1)
-        except:
-            request_line = request_headers
-            headers_string = ''
-
-        environ['REQUEST_METHOD'], PATH, \
-        environ['SERVER_PROTOCOL'] = request_line.split(' ')
-
-        PATH = urlparse.urlparse(PATH)
-
-        environ['PATH_INFO'] = PATH.path
-        environ['QUERY_STRING'] = PATH.query
-        
-        headers = []
-        if headers_string != '':
-            headers = headers_string.split('\r\n')
-
-        headerDict = {}
-        for line in headers:
-            k, v = line.split(': ', 1)
-            headerDict[k.lower()] = v
-
-        if 'content-length' in headerDict.keys():
-            environ['CONTENT_LENGTH'] = headerDict['content-length']
-        
-        environ['wsgi.input'] = StringIO(request_body)
-
-        if 'content-type' in headerDict.keys():
-            environ['CONTENT_TYPE'] = headerDict['content-type']
-        
-            
-    return environ
-
 # --------------------------------------------------------------------------------
 #                           handling the connection 
 # --------------------------------------------------------------------------------
@@ -205,6 +134,13 @@ def handle_connection(conn):
 
 
     the_wsgi_app = make_app()
+
+    # validator
+    validator_app = validator(the_wsgi_app)
+    httpd = make_server('', 8000, validator_app)
+    print 'Listening on port 8000...'
+    httpd.serve_forever()
+
     environ = getEnvironData(conn)
     result = the_wsgi_app(environ, start_response)
 
