@@ -53,26 +53,20 @@ def test_handle_connection_to_content():
 def test_handle_connection_to_image():
     conn = FakeConnection("GET /image HTTP/1.0\r\n \
             \r\n\r\n")
-    expected_return = \
-    'HTTP/1.0 200 OK\r\n' + \
-    'Content-type: text/html\r\n\r\n' + \
-    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>Image</title>\n\n\n</head>\n<body>\n\n\n<p>Image</p>\n\n\n</body>\n</html>"
+    partial_expected_return = 'Content-type: image/jpg'
 
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert partial_expected_return in conn.sent, 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_connection_to_file():
     conn = FakeConnection("GET /file HTTP/1.0\r\n \
             \r\n\r\n")
-    expected_return = \
-    'HTTP/1.0 200 OK\r\n' + \
-    'Content-type: text/html\r\n\r\n' + \
-    "<!DOCTYPE HTML>\n<html>\n<head>\n\n\n<title>File</title>\n\n\n</head>\n<body>\n\n\n<p>File</p>\n\n\n</body>\n</html>"
+    partial_expected_return = 'Content-type: text/plain'
 
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert partial_expected_return in conn.sent, 'Got: %s' % (repr(conn.sent),)
 
 '''
 def test_handle_error_post_request():
@@ -125,9 +119,7 @@ def test_handle_multipart_post():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_submit_get():
-    conn = FakeConnection("GET /submit?firstname=Test&lastname=Testing \
-            HTTP/1.0\r\n\
-            \r\n\r\n")
+    conn = FakeConnection("GET /submit?firstname=Test&lastname=Testing HTTP/1.0\r\n \r\n\r\n")
     
     expected_return = \
     'HTTP/1.0 200 OK\r\n' + \

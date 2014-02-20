@@ -124,7 +124,7 @@ def handle_post(environ):
     for k in environ.keys():
         headers[k.lower()] = environ[k]
 
-    form = cgi.FieldStorage(headers=headers, fp=StringIO(environ['wsgi.input'].getvalue()),\
+    form = cgi.FieldStorage(headers=headers, fp=environ['wsgi.input'],\
             environ=environ)
 
     if 'application/x-www-form-urlencoded' in environ['CONTENT_TYPE']:
@@ -152,7 +152,7 @@ def simple_app(environ, start_response):
         response = handle_post(environ)
 
     start_response(status, headers)
-    return response
+    return [response]
 
 def make_app():
     return simple_app

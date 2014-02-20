@@ -36,15 +36,7 @@ def extractPostData(conn, environ, headers_dict):
     data = conn.recv(int(content_length))
     environ['CONTENT_LENGTH'] = content_length
     environ['CONTENT_TYPE'] = headers_dict['content-type']
-    environ['SCRIPT_NAME'] = ''
     environ['wsgi.input'] = StringIO(data)
-
-def extractGetData(conn, environ, data):
-    environ['CONTENT_LENGTH'] = 0
-    environ['CONTENT_TYPE'] = 'text/html'
-    environ['SCRIPT_NAME'] = ''
-    content = ''
-    environ['wsgi.input'] = StringIO(content)
 
 def extractPath(text):
     temp = text.splitlines()
@@ -76,19 +68,30 @@ def getEnvironData(conn):
             break
 
     request, PATH, \
-    environ['SERVER_PROTOCOL'] = requestType.split(' ')
-
+    protocol = requestType.split(' ')
     PATH = urlparse.urlparse(PATH)
+    url_scheme = protocol.split('/')[0]
 
+    environ['wsgi.input'] = StringIO('')
     environ['PATH_INFO'] = PATH.path
     environ['QUERY_STRING'] = PATH.query
+    environ['SERVER_NAME'] = ''
+    environ['SERVER_PORT'] = ''
+    environ['SCRIPT_NAME'] = ''
+    environ['CONTENT_LENGTH'] = '0'
+    environ['CONTENT_TYPE'] = 'text/html'
+    environ['SERVER_PROTOCOL'] = protocol
+    environ['wsgi.version'] = (1, 0)
+    environ['wsgi.errors'] = StringIO()
+    environ['wsgi.multithread'] = ''
+    environ['wsgi.multiprocess'] = ''
+    environ['wsgi.run_once'] = ''
+    environ['wsgi.url_scheme'] = url_scheme.lower()
 
     request = requestType.split(' ')[0]
     environ['REQUEST_METHOD'] = request
     if request == 'POST':
         extractPostData(conn, environ, headers_dict)
-    elif request == 'GET':
-        extractGetData(conn, environ, data)
 
     return environ
 
@@ -133,15 +136,13 @@ def handle_connection(conn):
         return write
 
 
-    the_wsgi_app = make_app()
+    the_wsgi_app = app.make_app()
 
     # validator
-    validator_app = validator(the_wsgi_app)
-    httpd = make_server('', 8000, validator_app)
-    print 'Listening on port 8000...'
-    httpd.serve_forever()
+    # validator_app = validator(the_wsgi_app)
 
     environ = getEnvironData(conn)
+    # result = validator_app(environ, start_response)
     result = the_wsgi_app(environ, start_response)
 
     try:
@@ -149,8 +150,10 @@ def handle_connection(conn):
             write(item)
         if not headers_sent:
             write('')
-    finally:
-        conn.close()
+    except: # TODO: not sure if this is best way to do this
+        pass
+
+    conn.close()
     
 def main():
     s = socket.socket()         # Create a socket object

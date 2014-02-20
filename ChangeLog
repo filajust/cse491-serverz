@@ -67,3 +67,7 @@
 
  * added quixote wsgi app, made images and plain text work in my app, added
  * validation to the wsgi app
+
+2014-02-20  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * fixed tests, used validation from wsgiref
