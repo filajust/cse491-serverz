@@ -24,12 +24,17 @@ def content_html():
     return html
 
 def file_html():
-    html = render.render('file.html').encode('latin-1', 'replace')
+    # html = render.render('file.html').encode('latin-1', 'replace')
+    html = 'This is a plain text document.'
     return html
 
 def image_html():
+    fp = open('./images/justin_eli.jpg', 'rb')
+    data = fp.read()
+    fp.close()
+
     html = render.render('image.html').encode('latin-1', 'replace')
-    return html
+    return data 
 
 def form_html():
     vars_dict = {'submit_url': '/submit'}
@@ -37,11 +42,10 @@ def form_html():
     return html
 
 def submit_html(environ):
-    data = environ['PATH_INFO']
+    query = environ['QUERY_STRING']
 
     html = ''
-    # get the query string, then use it as a parameter to get dictionary
-    res = urlparse.parse_qs(urlparse.urlparse(data).query)
+    res = urlparse.parse_qs(query)
     if len(res) < 2: # check if the input was valid
         html = render.render('error.html').encode('latin-1', 'replace')
     else:
@@ -76,14 +80,16 @@ def error_html():
     return html
     
 # def handle_get(path, conn):
-def handle_get(environ):
+def handle_get(environ, headers):
     if environ['PATH_INFO'] == '/':
         return index_html()
     elif environ['PATH_INFO'] == '/content':
         return content_html()
     elif environ['PATH_INFO'] == '/file':
+        headers[0] = ('Content-type', 'text/plain')
         return file_html()
     elif environ['PATH_INFO'] == '/image':
+        headers[0] = ('Content-type', 'image/jpg')
         return image_html()
     elif environ['PATH_INFO'] == '/form':
         return form_html()
@@ -141,7 +147,7 @@ def simple_app(environ, start_response):
     response = ''
 
     if environ['REQUEST_METHOD'] == 'GET':
-        response = handle_get(environ)
+        response = handle_get(environ, headers)
     elif environ['REQUEST_METHOD'] == 'POST':
         response = handle_post(environ)
 
