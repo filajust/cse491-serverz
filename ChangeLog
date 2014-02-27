@@ -71,3 +71,7 @@
 2014-02-20  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * fixed tests, used validation from wsgiref
+
+2014-02-26  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * added cookie to environ variable

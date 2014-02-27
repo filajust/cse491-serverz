@@ -11,9 +11,11 @@ from StringIO import StringIO
 # from app import make_app
 import app
 import quixote
-from quixote.demo import create_publisher
 from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
+# from quixote.demo import create_publisher
+# from quixote.demo.mini_demo import create_publisher
+from quixote.demo.altdemo import create_publisher
 
 # --------------------------------------------------------------------------------
 #                                Functions 
@@ -43,8 +45,7 @@ def extractPath(text):
     return temp[0].split(' ')[1]
 
 # Send response
-# took some code from 
-# http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
+# referenced bjurgess1 for solution
 def getEnvironData(conn):
     environ = {}
 
@@ -87,6 +88,7 @@ def getEnvironData(conn):
     environ['wsgi.multiprocess'] = ''
     environ['wsgi.run_once'] = ''
     environ['wsgi.url_scheme'] = url_scheme.lower()
+    environ['HTTP_COOKIE'] = headers_dict['cookie']
 
     request = requestType.split(' ')[0]
     environ['REQUEST_METHOD'] = request
@@ -136,7 +138,8 @@ def handle_connection(conn):
         return write
 
 
-    the_wsgi_app = app.make_app()
+# the_wsgi_app = app.make_app()
+    the_wsgi_app = make_app()
 
     # validator
     # validator_app = validator(the_wsgi_app)
