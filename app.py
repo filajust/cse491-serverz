@@ -127,6 +127,8 @@ def handle_post(environ):
     form = cgi.FieldStorage(headers=headers, fp=environ['wsgi.input'],\
             environ=environ)
 
+    print 'form: ', form
+
     if 'application/x-www-form-urlencoded' in environ['CONTENT_TYPE']:
         return urlencoded_html(form)
     elif 'multipart/form-data;' in environ['CONTENT_TYPE']:

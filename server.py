@@ -11,9 +11,12 @@ from StringIO import StringIO
 # from app import make_app
 import app
 import quixote
-from quixote.demo import create_publisher
 from wsgiref.validate import validator
-from wsgiref.simple_server import make_server
+# from wsgiref.simple_server import make_server
+#  from quixote.demo import create_publisher
+# from quixote.demo.mini_demo import create_publisher
+# from quixote.demo.altdemo import create_publisher
+import imageapp
 
 # --------------------------------------------------------------------------------
 #                                Functions 
@@ -25,7 +28,9 @@ def make_app():
     global _the_app
 
     if _the_app is None:
-        p = create_publisher()
+        imageapp.setup()
+        p = imageapp.create_publisher()
+# p = create_publisher()
         p.is_thread_safe = True   # hack..
         _the_app = quixote.get_wsgi_app()
 
@@ -43,8 +48,7 @@ def extractPath(text):
     return temp[0].split(' ')[1]
 
 # Send response
-# took some code from 
-# http://stackoverflow.com/questions/8315209/sending-http-headers-with-python 
+# referenced bjurgess1 for solution
 def getEnvironData(conn):
     environ = {}
 
@@ -58,6 +62,7 @@ def getEnvironData(conn):
     headers_temp, content = theRest.split('\r\n\r\n', 1)
 
     headers_dict = {}
+
     headers = StringIO(headers_temp)
 
     for line in headers:
@@ -81,12 +86,14 @@ def getEnvironData(conn):
     environ['CONTENT_LENGTH'] = '0'
     environ['CONTENT_TYPE'] = 'text/html'
     environ['SERVER_PROTOCOL'] = protocol
-    environ['wsgi.version'] = (1, 0)
+    environ['wsgi.version'] = ('',)
     environ['wsgi.errors'] = StringIO()
-    environ['wsgi.multithread'] = ''
-    environ['wsgi.multiprocess'] = ''
-    environ['wsgi.run_once'] = ''
+    environ['wsgi.multithread'] = 0
+    environ['wsgi.multiprocess'] = 0
+    environ['wsgi.run_once'] = 0
     environ['wsgi.url_scheme'] = url_scheme.lower()
+    if 'cookie' in headers_dict.keys():
+        environ['HTTP_COOKIE'] = headers_dict['cookie']
 
     request = requestType.split(' ')[0]
     environ['REQUEST_METHOD'] = request
@@ -136,7 +143,8 @@ def handle_connection(conn):
         return write
 
 
-    the_wsgi_app = app.make_app()
+# the_wsgi_app = app.make_app()
+    the_wsgi_app = make_app()
 
     # validator
     # validator_app = validator(the_wsgi_app)
@@ -164,19 +172,7 @@ def handle_connection(conn):
     
 def main():
     s = socket.socket()         # Create a socket object
-    host = '' 
-    try:
-        host = socket.getfqdn()     # Get local machine name
-        # print 'host: ', host
-    except socket.gaierror, e:
-        try:
-            host = socket.gethostbyaddr(u'localhost')
-            # print 'host2: ', host
-        except:
-            pass
-    except:
-        pass
-
+    host = socket.getfqdn()     # Get local machine name
     port = random.randint(8000, 9999)
     s.bind((host, port))        # Bind to the port
 
@@ -193,6 +189,7 @@ def main():
         print 'Got connection from', client_host, client_port
         handle_connection(c)
 
+    imageapp.teardown()
     
 if __name__ == '__main__':
     main()
