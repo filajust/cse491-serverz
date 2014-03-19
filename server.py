@@ -7,6 +7,7 @@ import time
 import urlparse
 import cgi
 import render
+import argparse
 from StringIO import StringIO
 # from app import make_app
 import app
@@ -142,7 +143,6 @@ def handle_connection(conn):
 
         return write
 
-
 # the_wsgi_app = app.make_app()
     the_wsgi_app = make_app()
 
@@ -171,10 +171,30 @@ def handle_connection(conn):
     conn.close()
     
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-A', '--app', 
+            help='specify type of app (altdemo, myapp, image)')
+    parser.add_argument('-p', '--port', help='specify port', type=int)
+
+    args = parser.parse_args()
+    if args.app == 'running altdemo...':
+        print args.app
+    elif args.app == 'running myapp...':
+        print args.app
+    elif args.app == 'running image...':
+        print args.app
+    else:
+        print 'running myapp...'
+
+    port = 0;
+    if args.port:
+        port = args.port
+    else:
+        port = random.randint(8000, 9999)
+
     s = socket.socket()         # Create a socket object
     # host = socket.getfqdn()     # Get local machine name
     host = "localhost"
-    port = random.randint(8000, 9999)
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
