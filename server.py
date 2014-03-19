@@ -172,7 +172,8 @@ def handle_connection(conn):
     
 def main():
     s = socket.socket()         # Create a socket object
-    host = socket.getfqdn()     # Get local machine name
+    # host = socket.getfqdn()     # Get local machine name
+    host = "localhost"
     port = random.randint(8000, 9999)
     s.bind((host, port))        # Bind to the port
 
