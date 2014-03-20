@@ -79,3 +79,15 @@
 2014-02-27  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * updated tests
+
+2014-02-27  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * HW 8
+ * Added commandline arguments, differentiate between different apps, 
+ * added twil tests
+ * 
+ * Project - modify imageapp to accept jpg and tiffs
+ * modified image.py to store the image data and the type
+ * use that value when loading the image to specify the type
+
+

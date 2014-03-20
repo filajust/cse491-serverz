@@ -36,6 +36,5 @@ class RootDirectory(Directory):
     def image_raw(self):
         response = quixote.get_response()
         item = image.get_latest_image()
-        print 'type: ', item[1]
         response.set_content_type(item[1])
         return item[0] 
