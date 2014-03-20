@@ -1,0 +1,31 @@
+follow content
+find "Content"
+code 200
+
+go /
+follow file 
+code 200
+
+go /
+follow image 
+code 200
+
+go /
+follow form
+formvalue 1 firstname Test
+formvalue 1 lastname Testy
+submit
+code 200
+
+go /
+follow formPost
+formvalue 1 firstname Test
+formvalue 1 lastname Testy
+submit
+code 200
+
+go /
+follow formPostMultipart
+formfile 1 file imageapp/dice.png 
+submit
+code 200
