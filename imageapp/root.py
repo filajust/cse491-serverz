@@ -26,7 +26,9 @@ class RootDirectory(Directory):
         datatype = the_file.base_filename.split('.')[-1]
 
         image.add_image(data, datatype)
-        return quixote.redirect('./')
+        return html.render('index.html')
+        # TODO: actually redirect
+        # return quixote.redirect('/')
 
     @export(name='image')
     def image(self):
