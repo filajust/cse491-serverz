@@ -7,15 +7,17 @@ import time
 import urlparse
 import cgi
 import render
+import argparse
 from StringIO import StringIO
 # from app import make_app
 import app
 import quixote
 from wsgiref.validate import validator
 # from wsgiref.simple_server import make_server
-#  from quixote.demo import create_publisher
+# from quixote.demo import create_publisher
 # from quixote.demo.mini_demo import create_publisher
 # from quixote.demo.altdemo import create_publisher
+import quixote.demo.altdemo
 import imageapp
 
 # --------------------------------------------------------------------------------
@@ -24,13 +26,16 @@ import imageapp
 
 _the_app = None
 
-def make_app():
+def make_app(app_type):
     global _the_app
 
     if _the_app is None:
         imageapp.setup()
-        p = imageapp.create_publisher()
-# p = create_publisher()
+        p = None
+        if app_type == "imageapp":
+            p = imageapp.create_publisher()
+        else: # app_type == "altdemoapp":
+            p = quixote.demo.altdemo.create_publisher()
         p.is_thread_safe = True   # hack..
         _the_app = quixote.get_wsgi_app()
 
@@ -107,7 +112,7 @@ def getEnvironData(conn):
 # --------------------------------------------------------------------------------
     
 # referenced bjurgess1 for solution
-def handle_connection(conn):
+def handle_connection(conn, app_type):
     headers_set = []
     headers_sent = []
 
@@ -142,9 +147,11 @@ def handle_connection(conn):
 
         return write
 
-
-# the_wsgi_app = app.make_app()
-    the_wsgi_app = make_app()
+    the_wsgi_app = None
+    if app_type == "myapp":
+        the_wsgi_app = app.make_app()
+    else:
+        the_wsgi_app = make_app(app_type)
 
     # validator
     # validator_app = validator(the_wsgi_app)
@@ -171,9 +178,36 @@ def handle_connection(conn):
     conn.close()
     
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-A', '--app', 
+            help='specify type of app (altdemo, myapp, image)')
+    parser.add_argument('-p', '--port', help='specify port', type=int)
+
+    args = parser.parse_args()
+
+    app_type = ''
+    if args.app == 'altdemoapp':
+        print 'running altdemoapp...'
+        app_type = "altdemoapp" 
+    elif args.app == 'myapp':
+        print 'running myapp...'
+        app_type = "myapp"
+    elif args.app == 'imageapp':
+        print 'running imageapp...'
+        app_type = "imageapp"
+    else:
+        print '** Error: argument must be "imageapp", "myapp", or "altdemoapp"'
+        return
+
+    port = 0;
+    if args.port:
+        port = args.port
+    else:
+        port = random.randint(8000, 9999)
+
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn()     # Get local machine name
-    port = random.randint(8000, 9999)
+    # host = "localhost"
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
@@ -187,7 +221,7 @@ def main():
         c, (client_host, client_port) = s.accept()
         
         print 'Got connection from', client_host, client_port
-        handle_connection(c)
+        handle_connection(c, app_type)
 
     imageapp.teardown()
     

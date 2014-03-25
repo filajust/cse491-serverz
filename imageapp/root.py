@@ -23,10 +23,12 @@ class RootDirectory(Directory):
         print dir(the_file)
         print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
+        datatype = the_file.base_filename.split('.')[-1]
 
-        image.add_image(data)
-
-        return quixote.redirect('./')
+        image.add_image(data, datatype)
+        return html.render('index.html')
+        # TODO: actually redirect
+        # return quixote.redirect('/')
 
     @export(name='image')
     def image(self):
@@ -35,6 +37,6 @@ class RootDirectory(Directory):
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
-        response.set_content_type('image/png')
-        img = image.get_latest_image()
-        return img
+        item = image.get_latest_image()
+        response.set_content_type(item[1])
+        return item[0] 
