@@ -14,7 +14,8 @@ import quixote
 from wsgiref.validate import validator
 import quixote.demo.altdemo
 import imageapp
-from quotes import apps
+from quotes import quotes_app 
+from chat import chat_app
 
 # --------------------------------------------------------------------------------
 #                                Functions 
@@ -147,7 +148,9 @@ def handle_connection(conn, app_type):
     if app_type == "myapp":
         the_wsgi_app = app.make_app()
     elif app_type == "quotes":
-        the_wsgi_app = apps.QuotesApp('quotes/quotes.txt', 'quotes/html')
+        the_wsgi_app = quotes_app.QuotesApp('quotes/quotes.txt', 'quotes/html')
+    elif app_type == "chat":
+        the_wsgi_app = chat_app.ChatApp('chat/html')
     else:
         the_wsgi_app = make_app(app_type)
 
@@ -196,8 +199,11 @@ def main():
     elif args.app == 'quotes':
         print 'running quotes...'
         app_type = "quotes"
+    elif args.app == 'chat':
+        print 'running chat...'
+        app_type = "chat"
     else:
-        print '** Error: argument must be "imageapp", "myapp", "altdemoapp", or "quotes"'
+        print '** Error: argument must be "imageapp", "myapp", "altdemoapp", "quotes", or "chat"'
         return
 
     port = 0;
