@@ -9,16 +9,12 @@ import cgi
 import render
 import argparse
 from StringIO import StringIO
-# from app import make_app
 import app
 import quixote
 from wsgiref.validate import validator
-# from wsgiref.simple_server import make_server
-# from quixote.demo import create_publisher
-# from quixote.demo.mini_demo import create_publisher
-# from quixote.demo.altdemo import create_publisher
 import quixote.demo.altdemo
 import imageapp
+from quotes import apps
 
 # --------------------------------------------------------------------------------
 #                                Functions 
@@ -150,6 +146,8 @@ def handle_connection(conn, app_type):
     the_wsgi_app = None
     if app_type == "myapp":
         the_wsgi_app = app.make_app()
+    elif app_type == "quotes":
+        the_wsgi_app = apps.QuotesApp('quotes/quotes.txt', 'quotes/html')
     else:
         the_wsgi_app = make_app(app_type)
 
@@ -195,8 +193,11 @@ def main():
     elif args.app == 'imageapp':
         print 'running imageapp...'
         app_type = "imageapp"
+    elif args.app == 'quotes':
+        print 'running quotes...'
+        app_type = "quotes"
     else:
-        print '** Error: argument must be "imageapp", "myapp", or "altdemoapp"'
+        print '** Error: argument must be "imageapp", "myapp", "altdemoapp", or "quotes"'
         return
 
     port = 0;
@@ -206,8 +207,8 @@ def main():
         port = random.randint(8000, 9999)
 
     s = socket.socket()         # Create a socket object
-    host = socket.getfqdn()     # Get local machine name
-    # host = "localhost"
+    # host = socket.getfqdn()     # Get local machine name
+    host = "localhost"
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
