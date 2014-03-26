@@ -37,9 +37,10 @@ $(document).ready(function() {
 
         author = $("author", message).text();
         content = $("text", message).text();
+        time = $("messtime", message).text();
 
-        $("#messagewindow").prepend("<b>" + author + "</b>:" + content 
-                                    + "<br>");
+        $("#messagewindow").prepend("<b>" + author + "</b>: " + content 
+                                    + " (sent at " + time + " sec)<br>");
      });
   };
 

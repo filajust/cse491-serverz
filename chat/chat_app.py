@@ -33,8 +33,9 @@ class ChatApp(object):
 <message>
  <author>%s</author>
  <text>%s</text>
+ <messtime>%d</messtime>
 </message>
-""" % (m.user, m.message))
+""" % (m.user, m.message, m.timestamp))
 
       if x:                             # new messages received?
          # yes
