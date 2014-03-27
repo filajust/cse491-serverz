@@ -98,7 +98,14 @@
  * 
  * Project - swipe template from oswd.org and use it
  *           in imageapp server
- * In root.py in the imageapp folder, made it return 
+ * In root.py (in the imageapp folder), made it return 
  * the css when a css file was requested, and also
  * return images when an image was requested. Did 
  * this using StaticDirectory 
+ * 
+ * Can test this simply by running:
+ * python server.py -A imageapp
+ *  
+ * The template should come up with the dice image
+ * on the front page. The other pages can be 
+ * navigated to using the links at the top
