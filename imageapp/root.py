@@ -51,7 +51,12 @@ class RootDirectory(Directory):
         image_num = None
         item = None
         if 'num' in request.form.keys():
-            image_num = int(request.form['num'].encode("ascii"))
+            try:
+                image_num = int(request.form['num'].encode("ascii"))
+            except ValueError:
+                print "ERROR: not an int... showing latest"
+                image_num = image.get_image_num()
+            
             image_count = image.get_image_num()
 
             if image_num > image_count:
@@ -64,6 +69,12 @@ class RootDirectory(Directory):
             special = request.form['special'].encode("latin-1")
             if special == 'latest':
                 item = image.get_latest_image()
+            else:
+                # TODO: different case for this?
+                item = image.get_latest_image()
+        else:
+            # TODO: different case for this?
+            item = image.get_latest_image()
 
         response.set_content_type(item[1])
         return item[0] 
