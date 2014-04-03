@@ -11,7 +11,6 @@ class RootDirectory(Directory):
 
     @export(name='')                    # this makes it public.
     def index(self):
-        print "test"
         return html.render('index.html')
 
     @export(name='upload')
@@ -27,8 +26,8 @@ class RootDirectory(Directory):
         # print dir(the_file)
         # print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
-        datatype = the_file.base_filename.split('.')[-1]
 
+        datatype = the_file.base_filename.split('.')[-1]
         image.add_image(data, datatype)
         return html.render('index.html')
         # TODO: actually redirect
@@ -39,7 +38,7 @@ class RootDirectory(Directory):
         return html.render('image.html')
 
     @export(name='image_list')
-    def image(self):
+    def image_list(self):
         image_num = image.get_image_num()
         vars_dict = {'num_images': image_num}
         return html.render('image_list.html', vars_dict)
@@ -49,6 +48,13 @@ class RootDirectory(Directory):
         response = quixote.get_response()
         request = quixote.get_request()
         image_num = int(request.form['num'].encode("ascii"))
+        image_count = image.get_image_num()
+
+        if image_num > image_count:
+            image_num = image_count 
+        elif image_num < 0:
+            image_num = 0
+
         item = image.get_image(image_num)
         response.set_content_type(item[1])
         return item[0] 
