@@ -43,25 +43,27 @@ class RootDirectory(Directory):
         vars_dict = {'num_images': image_num}
         return html.render('image_list.html', vars_dict)
 
-    @export(name='image_num_raw')
-    def image_num_raw(self):
-        response = quixote.get_response()
-        request = quixote.get_request()
-        image_num = int(request.form['num'].encode("ascii"))
-        image_count = image.get_image_num()
-
-        if image_num > image_count:
-            image_num = image_count 
-        elif image_num < 0:
-            image_num = 0
-
-        item = image.get_image(image_num)
-        response.set_content_type(item[1])
-        return item[0] 
-
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
-        item = image.get_latest_image()
+        request = quixote.get_request()
+
+        image_num = None
+        item = None
+        if 'num' in request.form.keys():
+            image_num = int(request.form['num'].encode("ascii"))
+            image_count = image.get_image_num()
+
+            if image_num > image_count:
+                image_num = image_count 
+            elif image_num < 0:
+                image_num = 0
+
+            item = image.get_image(image_num)
+        elif 'special' in request.form.keys():
+            special = request.form['special'].encode("latin-1")
+            if special == 'latest':
+                item = image.get_latest_image()
+
         response.set_content_type(item[1])
         return item[0] 
