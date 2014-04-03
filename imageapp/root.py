@@ -11,7 +11,7 @@ class RootDirectory(Directory):
 
     @export(name='')                    # this makes it public.
     def index(self):
-        # return html.render('index.html')
+        print "test"
         return html.render('index.html')
 
     @export(name='upload')
@@ -21,7 +21,7 @@ class RootDirectory(Directory):
     @export(name='upload_receive')
     def upload_receive(self):
         request = quixote.get_request()
-        print 'request.form.keys(): ', request.form.keys()
+        # print 'request.form.keys(): ', request.form.keys()
 
         the_file = request.form['file']
         # print dir(the_file)
@@ -30,14 +30,28 @@ class RootDirectory(Directory):
         datatype = the_file.base_filename.split('.')[-1]
 
         image.add_image(data, datatype)
-        # return html.render('index.html')
         return html.render('index.html')
         # TODO: actually redirect
-        # return quixote.redirect('/')
+        # return quixote.redirect('http://localhost:9567')
 
     @export(name='image')
     def image(self):
         return html.render('image.html')
+
+    @export(name='image_list')
+    def image(self):
+        image_num = image.get_image_num()
+        vars_dict = {'num_images': image_num}
+        return html.render('image_list.html', vars_dict)
+
+    @export(name='image_num_raw')
+    def image_num_raw(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+        image_num = int(request.form['num'].encode("ascii"))
+        item = image.get_image(image_num)
+        response.set_content_type(item[1])
+        return item[0] 
 
     @export(name='image_raw')
     def image_raw(self):
