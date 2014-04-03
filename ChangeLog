@@ -80,7 +80,7 @@
 
  * updated tests
 
-2014-02-27  Justin Fila  <filajust@arctic.cse.msu.edu>
+2014-03-20  Justin Fila  <filajust@arctic.cse.msu.edu>
 
  * HW 8
  * Added commandline arguments, differentiate between different apps, 
@@ -90,4 +90,22 @@
  * modified image.py to store the image data and the type
  * use that value when loading the image to specify the type
 
+2014-03-27  Justin Fila  <filajust@arctic.cse.msu.edu>
 
+ * HW 9
+ * Added chat app and quotes app to the server
+ * Added timestamp to chat app
+ * 
+ * Project - swipe template from oswd.org and use it
+ *           in imageapp server
+ * In root.py (in the imageapp folder), made it return 
+ * the css when a css file was requested, and also
+ * return images when an image was requested. Did 
+ * this using StaticDirectory 
+ * 
+ * Can test this simply by running:
+ * python server.py -A imageapp
+ *  
+ * The template should come up with the dice image
+ * on the front page. The other pages can be 
+ * navigated to using the links at the top
