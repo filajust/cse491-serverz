@@ -26,9 +26,13 @@ class RootDirectory(Directory):
         # print dir(the_file)
         # print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
+        img = image.create_image_dict(data = data,\
+                fileName = the_file.base_filename,\
+                description = "uploaded image")
+        image.add_image(img, 'png')
 
-        datatype = the_file.base_filename.split('.')[-1]
-        image.add_image(data, datatype)
+        # datatype = the_file.base_filename.split('.')[-1]
+        # image.add_image(data, 'png')
         return html.render('index.html')
         # TODO: actually redirect
         # return quixote.redirect('http://localhost:9567')
@@ -76,5 +80,10 @@ class RootDirectory(Directory):
             # TODO: different case for this?
             item = image.get_latest_image()
 
-        response.set_content_type(item[1])
-        return item[0] 
+        # TODO: set content_type needs correct data type
+        if item:
+            ext = item['file_name'].split('.')[1]
+            response.set_content_type(ext)
+            return item['data'] 
+        else:
+            return None
