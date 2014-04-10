@@ -109,3 +109,37 @@
  * The template should come up with the dice image
  * on the front page. The other pages can be 
  * navigated to using the links at the top
+
+2014-04-02  Justin Fila  <filajust@arctic.cse.msu.edu>
+
+ * HW 10
+ * 
+ * Projects 
+ * (1) project 23 - Write a URL handler so that each image is referred to byi
+ *     its number
+ * 
+ *     in root.py, check the dictionary that you get from the request. If it
+ *     has 'special=latest' in it then get the final image
+ * 
+ *     if it has 'num=whatever' in it then get whatever image number it is
+ *     asking for (with bounds checking)
+ * 
+ *     Can test this simply by running:
+ *        "python server.py -A imageapp" then navigating to image_raw and the
+ *        image number you want.   ex: image_raw?num=1 
+ *  
+ * (2) project 5 - Add a URL that provides a list of images, resized to
+ *     thumbnails
+ * 
+ *     I created a new function in root.py (image_list) that renders a
+ *     new html template. The number of images is passed to the template
+ *     using a dictionary. Inside that html, I grab that number and loop
+ *     that many times using the url implented from project 23 to display
+ *     the correct image
+ * 
+ *     Can test this simply by running:
+ *        "python server.py -A imageapp" then uploading a few pictures, then
+ *        navigating to the tab titled "Image List"
+ * 
+ 
+
