@@ -30,6 +30,19 @@ def insert(image_data):
     db.commit()
     db.close()
 
+def update(img):
+    # connect to the already existing database
+    db = sqlite3.connect('images.sqlite')
+
+    # configure to allow binary insertions
+    db.text_factory = bytes
+    c = db.cursor()
+
+    c.execute('INSERT OR REPLACE INTO image_store (image, description, file_name) VALUES (?,?,?)', (img["data"],img["description"], img["file_name"]))
+
+    db.commit()
+    db.close()
+
 def retrieve(image_name):
     # connect to database
     db = sqlite3.connect('images.sqlite')

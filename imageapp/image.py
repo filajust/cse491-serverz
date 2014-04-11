@@ -1,5 +1,6 @@
 # image handling API
 from . import imageapp_sql
+from time import time, strftime
 
 # store it as a list
 images = []
@@ -46,3 +47,13 @@ def create_image_dict(data = "", fileName = "dice.png",
     img["thumbnail"] = "" 
                             
     return img
+
+def add_comment(img, comment):
+    commentList = img["commentList"]
+    commentList.append(comment)
+    img["commentList"] = commentList
+
+    return img 
+
+def get_comments(img):
+    return img["commentList"]

@@ -2,8 +2,7 @@ import os
 import quixote
 from quixote.directory import Directory, export, subdir
 from quixote.util import StaticDirectory
-
-from . import html, image
+from . import html, image, imageapp_sql
 
 class RootDirectory(Directory):
     _q_exports = ['static']
@@ -16,6 +15,22 @@ class RootDirectory(Directory):
     @export(name='upload')
     def upload(self):
         return html.render('upload.html')
+
+    @export(name='view_comments')
+    def view_comments(self):
+        img = image.get_latest_image()
+        res = image.get_comments(img)
+        return res
+
+    @export(name='add_comment')
+    def add_comment(self):
+        request = quixote.get_request()
+        comment = request.form['comment'].encode("latin-1")
+
+        img = image.get_latest_image()
+        img = image.add_comment(img, comment)
+        imageapp_sql.update(img)
+        return html.render('index.html')
 
     @export(name='upload_receive')
     def upload_receive(self):
