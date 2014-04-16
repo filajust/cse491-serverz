@@ -16,6 +16,7 @@ import quixote.demo.altdemo
 import imageapp
 from quotes import quotes_app 
 from chat import chat_app
+import cookieapp
 
 # --------------------------------------------------------------------------------
 #                                Functions 
@@ -151,6 +152,8 @@ def handle_connection(conn, app_type):
         the_wsgi_app = quotes_app.QuotesApp('quotes/quotes.txt', 'quotes/html')
     elif app_type == "chat":
         the_wsgi_app = chat_app.ChatApp('chat/html')
+    elif app_type == "cookie":
+        the_wsgi_app = cookieapp.wsgi_app
     else:
         the_wsgi_app = make_app(app_type)
 
@@ -202,8 +205,11 @@ def main():
     elif args.app == 'chat':
         print 'running chat...'
         app_type = "chat"
+    elif args.app == 'cookie':
+        print 'running cookie...'
+        app_type = "cookie"
     else:
-        print '** Error: argument must be "imageapp", "myapp", "altdemoapp", "quotes", or "chat"'
+        print '** Error: argument must be "imageapp", "myapp", "altdemoapp", "quotes", "chat", or "cookie"'
         return
 
     port = 0;

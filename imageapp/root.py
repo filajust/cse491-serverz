@@ -2,8 +2,7 @@ import os
 import quixote
 from quixote.directory import Directory, export, subdir
 from quixote.util import StaticDirectory
-
-from . import html, image
+from . import html, image, imageapp_sql
 
 class RootDirectory(Directory):
     _q_exports = ['static']
@@ -17,6 +16,22 @@ class RootDirectory(Directory):
     def upload(self):
         return html.render('upload.html')
 
+    @export(name='view_comments')
+    def view_comments(self):
+        img = image.get_latest_image()
+        res = image.get_comments(img)
+        return res
+
+    @export(name='add_comment')
+    def add_comment(self):
+        request = quixote.get_request()
+        comment = request.form['comment'].encode("latin-1")
+
+        img = image.get_latest_image()
+        img = image.add_comment(img, comment)
+        imageapp_sql.update(img)
+        return html.render('index.html')
+
     @export(name='upload_receive')
     def upload_receive(self):
         request = quixote.get_request()
@@ -26,9 +41,13 @@ class RootDirectory(Directory):
         # print dir(the_file)
         # print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
+        img = image.create_image_dict(data = data,\
+                fileName = the_file.base_filename,\
+                description = "uploaded image")
+        image.add_image(img, 'png')
 
-        datatype = the_file.base_filename.split('.')[-1]
-        image.add_image(data, datatype)
+        # datatype = the_file.base_filename.split('.')[-1]
+        # image.add_image(data, 'png')
         return html.render('index.html')
         # TODO: actually redirect
         # return quixote.redirect('http://localhost:9567')
@@ -76,5 +95,10 @@ class RootDirectory(Directory):
             # TODO: different case for this?
             item = image.get_latest_image()
 
-        response.set_content_type(item[1])
-        return item[0] 
+        # TODO: set content_type needs correct data type
+        if item:
+            ext = item['file_name'].split('.')[1]
+            response.set_content_type(ext)
+            return item['data'] 
+        else:
+            return None

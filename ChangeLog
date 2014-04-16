@@ -141,5 +141,26 @@
  *        "python server.py -A imageapp" then uploading a few pictures, then
  *        navigating to the tab titled "Image List"
  * 
- 
+
+2014-04-10 Justin Fila <filajust@arctic.cse.msu.edu>
+
+ * HW 11
+ * 
+ * Added database. Credit to phammin1, used his as a reference.
+ * 
+ * If no database exists, run "imageapp/create_database.py" from main
+ * directory to create one
+ * 
+ * Also added cookie app. Run with "python server.py -A cookie"
+ * 
+ * Projects
+ * (1) project 30 - Added database persistence (see homework above)
+ * 
+ * (2) project 8 - Added ability to comment on images
+ *     
+ *     There is a comment box on the main page. You can submit
+ *     a comment or view the comments for that image. under the hood
+ *     the comments are saved as an attribute of the image (implemented
+ *     in the image.py file)
+ * 
 
