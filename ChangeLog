@@ -164,3 +164,25 @@
  *     in the image.py file)
  * 
 
+2014-04-16 Justin Fila <filajust@arctic.cse.msu.edu>
+
+ * HW 12
+ * 
+ * Credit to phammin1, used his repository as a reference
+ * for both projects
+ * 
+ * Projects
+ * (1) project 22 - Resize image using server-side resizing
+ * 
+ *     Click the link that says "Image List (server resizes
+ *     thumbnail)". It only supports png's. 
+ *     
+ *     I used the StringIO library to read in the raw image
+ *     data. The PIL library is then used to save it as a 
+ *     thumbnail.
+ * 
+ * (2) project 6 - Added image metadata
+ *     
+ *     Click the link that says "View image metadata to
+ *     view it
+

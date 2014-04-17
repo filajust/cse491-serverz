@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+Here is your list of images:
+<br/>
+<script type="text/javascript">
+num_images = {{ num_images }}
+for (var i=0;i<num_images;i++)
+{
+  document.write("<img border='2' src='image_raw_thumbnail?num=" + i + "'/><br/>");
+}
+</script>
+
+{% endblock %}

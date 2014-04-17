@@ -62,6 +62,12 @@ class RootDirectory(Directory):
         vars_dict = {'num_images': image_num}
         return html.render('image_list.html', vars_dict)
 
+    @export(name='image_list_server_side_thumbnail')
+    def image_list_server_side_thumbnail(self):
+        image_num = image.get_image_num()
+        vars_dict = {'num_images': image_num}
+        return html.render('image_list_server_side_thumbnail.html', vars_dict)
+
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
@@ -100,5 +106,46 @@ class RootDirectory(Directory):
             ext = item['file_name'].split('.')[1]
             response.set_content_type(ext)
             return item['data'] 
+        else:
+            return None
+
+    @export(name='image_raw_thumbnail')
+    def image_raw_thumbnail(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+
+        image_num = None
+        item = None
+        if 'num' in request.form.keys():
+            try:
+                image_num = int(request.form['num'].encode("ascii"))
+            except ValueError:
+                print "ERROR: not an int... showing latest"
+                image_num = image.get_image_num()
+            
+            image_count = image.get_image_num()
+
+            if image_num > image_count:
+                image_num = image_count 
+            elif image_num < 0:
+                image_num = 0
+
+            item = image.get_image(image_num)
+        elif 'special' in request.form.keys():
+            special = request.form['special'].encode("latin-1")
+            if special == 'latest':
+                item = image.get_latest_image()
+            else:
+                # TODO: different case for this?
+                item = image.get_latest_image()
+        else:
+            # TODO: different case for this?
+            item = image.get_latest_image()
+
+        # TODO: set content_type needs correct data type
+        if item:
+            ext = item['file_name'].split('.')[1]
+            response.set_content_type(ext)
+            return item['thumbnail'] 
         else:
             return None
