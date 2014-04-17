@@ -219,8 +219,8 @@ def main():
         port = random.randint(8000, 9999)
 
     s = socket.socket()         # Create a socket object
-    # host = socket.getfqdn()     # Get local machine name
-    host = "localhost"
+    host = socket.getfqdn()     # Get local machine name
+    # host = "localhost"
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
