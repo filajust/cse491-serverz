@@ -109,6 +109,37 @@ class RootDirectory(Directory):
         else:
             return None
 
+    @export(name='retrieve_metadata')
+    def retrieve_metadata(self):
+        request = quixote.get_request()
+
+        image_num = None
+        item = None
+        if 'num' in request.form.keys():
+            try:
+                image_num = int(request.form['num'].enclode("ascii"))
+            except ValueError:
+                print "ERROR: not an int... showing latest metadata"
+                image_num = image.get_image_num()
+        else:
+            image_num = image.get_image_num() - 1
+
+        image_count = image.get_image_num()
+
+        if image_num > image_count:
+            image_num = image_count
+        elif image_num < 0:
+            image_num = 0
+
+        img = image.get_image(image_num)
+
+        vars_dict = {'description': img['description'],
+                     'commentList': img['commentList'],
+                     'thumbnail': img['thumbnail'],
+                     'file_name': img['file_name']}
+        return html.render('retrieve_metadata.html', vars_dict)
+        
+
     @export(name='image_raw_thumbnail')
     def image_raw_thumbnail(self):
         response = quixote.get_response()

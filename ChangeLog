@@ -148,7 +148,7 @@
  * 
  * Added database. Credit to phammin1, used his as a reference.
  * 
- * If no database exists, run "imageapp/create_database.py" from main
+ * If no database exists, run "imageapp/setup_database.py" from main
  * directory to create one
  * 
  * Also added cookie app. Run with "python server.py -A cookie"
@@ -183,6 +183,10 @@
  * 
  * (2) project 6 - Added image metadata
  *     
- *     Click the link that says "View image metadata to
- *     view it
+ *     Click the link that says "Retrieve Metadata" to
+ *     view it. The description, filename, and comments
+ *     are displayed.
+ *     
+ *     I added a function to image.py that creates the 
+ *     image as a dictionary when added to the database.
 
