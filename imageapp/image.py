@@ -1,6 +1,8 @@
 # image handling API
 from . import imageapp_sql
 from time import time, strftime
+from PIL import Image, ImageFile
+from StringIO import StringIO
 
 # store it as a list
 images = []
@@ -44,7 +46,7 @@ def create_image_dict(data = "", fileName = "dice.png",
     img["file_name"] = fileName
     img["description"] = description
     img["commentList"] = []
-    img["thumbnail"] = "" 
+    img["thumbnail"] = resize_image(data)
                             
     return img
 
@@ -57,3 +59,26 @@ def add_comment(img, comment):
 
 def get_comments(img):
     return img["commentList"]
+
+def resize_image(image_data):
+    # adjust width and height to your needs
+    new_image_size = 150, 150
+
+    # read data into PIL image
+    p = ImageFile.Parser()
+    img = None
+    try:
+        p.feed(image_data)
+        img = p.close()
+    except Exception, msg:
+        print "error resizing:", msg
+
+    if img == None:
+        print 'did not work'
+    else:
+        fp = StringIO()
+        img.thumbnail(new_image_size, Image.ANTIALIAS)
+        img.save(fp, format="PNG")
+        fp.seek(0)
+        return fp.read()
+
