@@ -10,7 +10,8 @@ class RootDirectory(Directory):
 
     @export(name='')                    # this makes it public.
     def index(self):
-        return html.render('index.html')
+        vars_dict = {'username': ''}
+        return html.render('index.html', vars_dict)
 
     @export(name='upload')
     def upload(self):
@@ -30,17 +31,43 @@ class RootDirectory(Directory):
         img = image.get_latest_image()
         img = image.add_comment(img, comment)
         imageapp_sql.update(img)
-        return html.render('index.html')
+        vars_dict = {'username': ''}
+        return html.render('index.html', vars_dict)
 
-    @export(name='create_account')
+    @export(name='create_account_page')
+    def create_account_page(self):
+        return html.render('create_account.html')
+
+    @export(name='login_page')
+    def login_page(self):
+        return html.render('login.html')
+
+    @export(name='create_user')
     def create_account(self):
-        print 'create_account'
-        return html.render('index.html')
+        request = quixote.get_request()
+        username = request.form['username'].encode("latin-1")
+        password = request.form['password'].encode("latin-1")
+        password_confirm = request.form['password_confirm'].encode("latin-1")
+
+        imageapp_sql.create_user(username, password)
+        
+        vars_dict = {'username': ''}
+        return html.render('index.html', vars_dict)
 
     @export(name='login')
     def login(self):
-        print 'login'
-        return html.render('index.html')
+        request = quixote.get_request()
+        username = request.form['username'].encode("latin-1")
+        password = request.form['password'].encode("latin-1")
+
+        authenticated = imageapp_sql.authenticate(username, password)
+        
+        vars_dict = None
+        if authenticated:
+            vars_dict = {'username': username}
+        else:
+            vars_dict = {'username': ''}
+        return html.render('index.html', vars_dict)
 
     @export(name='upload_receive')
     def upload_receive(self):
@@ -57,9 +84,8 @@ class RootDirectory(Directory):
                 user = "test")
         image.add_image(img, 'png')
 
-        # datatype = the_file.base_filename.split('.')[-1]
-        # image.add_image(data, 'png')
-        return html.render('index.html')
+        vars_dict = {'username': ''}
+        return html.render('index.html', vars_dict)
         # TODO: actually redirect
         # return quixote.redirect('http://localhost:9567')
 

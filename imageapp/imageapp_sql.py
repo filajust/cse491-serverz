@@ -6,7 +6,8 @@ import sys
 
 def create():
     db = sqlite3.connect('images.sqlite')
-    db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB, description TEXT, file_name TEXT, user TEXT)');
+    db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB, description TEXT, file_name TEXT, user TEXT)')
+    db.execute('CREATE TABLE users_store (i INTEGER PRIMARY KEY, user TEXT, password TEXT)')
     db.commit()
     db.close()
 
@@ -27,6 +28,39 @@ def insert(image_data):
     c.execute('INSERT INTO image_store (image, description, file_name, user) VALUES (?,?,?,?)', (image_data["data"],image_data["description"], image_data["file_name"], image_data["user"]))
     db.commit()
     db.close()
+
+def create_user(username, password):
+    # connect to the already existing database
+    db = sqlite3.connect('images.sqlite')
+
+    # configure to allow binary insertions
+    db.text_factory = bytes
+    c = db.cursor()
+
+    # insert!
+    c.execute('INSERT OR REPLACE INTO users_store (user, password) VALUES (?,?)', (username, password))
+    db.commit()
+    db.close()
+
+def authenticate(username, password):
+    # connect to database
+    db = sqlite3.connect('images.sqlite')
+
+    # configure to retrieve bytes, not text
+    db.text_factory = bytes
+
+    # get a query handle (or "cursor")
+    c = db.cursor()
+
+    # select all of the images
+    c.execute('SELECT * FROM users_store WHERE user=?', (username, ))
+
+    # grab the first result (this will fail if no results!)
+    pass_db = c.fetchone()[2]
+
+    if password == pass_db:
+        return True
+    return False
 
 def update(img):
     # connect to the already existing database
