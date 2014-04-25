@@ -16,7 +16,7 @@ def setup():                            # stuff that should be run once.
     # image.load_images()
 
     # add_test_image()
-    load_images()
+    image.load_all_images()
     # some_data = open('imageapp/dice.png', 'rb').read()
     # image.add_image(some_data, 'png')
 
@@ -33,8 +33,3 @@ def add_test_image():
 
 def teardown():                         # stuff that should be run once.
     pass
-
-def load_images():
-    imageDictList = imageapp_sql.load_all_images()
-    for imgDict in imageDictList:
-        image.load_images(imgDict)

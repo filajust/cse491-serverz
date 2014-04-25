@@ -244,7 +244,22 @@ class RootDirectory(Directory):
                      'user' : img['user'],
                      'username' : username}
         return html.render('retrieve_metadata.html', vars_dict)
-        
+
+    @export(name='delete_image')
+    def delete_image(self):
+        username = quixote.get_cookie('username')
+
+        image_num = image.get_image_num()-1
+        myimage = image.get_image(image_num)
+        if myimage["user"] == username:
+            imageapp_sql.delete_image(myimage["file_name"])
+            image.reload_all_images()
+
+        vars_dict = {'username': ''}
+        if username:
+            vars_dict['username'] = username
+
+        return html.render('index.html', vars_dict)
 
     @export(name='image_raw_thumbnail')
     def image_raw_thumbnail(self):

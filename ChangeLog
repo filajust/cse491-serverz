@@ -190,3 +190,36 @@
  *     I added a function to image.py that creates the 
  *     image as a dictionary when added to the database.
 
+2014-04-16 Justin Fila <filajust@arctic.cse.msu.edu>
+
+ * HW 13
+ * 
+ * Credit to phammin1 and MattyAyOh. Used their repositories as a references
+ * for both projects
+ * 
+ * Homework
+ *     Added the html template to all the pages by making them inherit
+ *     from the base.html file
+ * 
+ * Projects
+ * (1) project 15 - Add account creation, login, and authentication
+ * 
+ *     Click "Create Account" at the top of the page. This will
+ *     take you to a page where you enter your information. If you enter
+ *     it correctly, it will log you in as that user. 
+ *     
+ *     I implemented this by adding another table to the database
+ *     that saves a user and password. I query this database for 
+ *     the specified user to see if that user is registered
+ * 
+ * (2) project 9 - Add username login via cookies and tracking of image 
+ *                 by "owner"
+ *     
+ *     Log in by clicking the "login" link at the top of the page.
+ *     When you upload an image the user is stored in the metadata.
+ *     You can view the user by clicking the "View Metadata" button
+ *     
+ *     I added this by asking the cookie for the user and adding it
+ *     as metadata to the image
+ *     
+

@@ -39,6 +39,7 @@ def load_images(aDict):
     img = create_image_dict(data = aDict["data"], fileName = aDict["file_name"],
                                                description = aDict["description"],
                                                user = aDict["user"])
+    print 'appending image'
     images.append(img)
 
 def create_image_dict(data = "", fileName = "dice.png", 
@@ -84,3 +85,13 @@ def resize_image(image_data):
         fp.seek(0)
         return fp.read()
 
+def load_all_images():
+    imageDictList = imageapp_sql.load_all_images()
+    for imgDict in imageDictList:
+        load_images(imgDict)
+
+def reload_all_images():
+    del images[:]
+    imageDictList = imageapp_sql.load_all_images()
+    for imgDict in imageDictList:
+        load_images(imgDict)

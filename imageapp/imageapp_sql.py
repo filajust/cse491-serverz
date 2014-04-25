@@ -56,10 +56,13 @@ def authenticate(username, password):
     c.execute('SELECT * FROM users_store WHERE user=?', (username, ))
 
     # grab the first result (this will fail if no results!)
-    pass_db = c.fetchone()[2]
+    user_item = c.fetchone()
+    pass_db = None;
+    if user_item:
+        pass_db = user_item[2]
+        if password == pass_db:
+            return True
 
-    if password == pass_db:
-        return True
     return False
 
 def update(img):
@@ -129,3 +132,8 @@ def load_all_images():
     print 'imageList length: ', len(imageList)
 
     return imageList
+
+def delete_image(file_name):
+    db = sqlite3.connect('images.sqlite')
+    db.execute('DELETE FROM image_store WHERE file_name=(?)', (file_name,))
+    db.commit()
