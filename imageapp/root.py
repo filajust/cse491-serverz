@@ -10,24 +10,40 @@ class RootDirectory(Directory):
 
     @export(name='')                    # this makes it public.
     def index(self):
+        username = quixote.get_cookie('username')
         vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
         return html.render('index.html', vars_dict)
 
     # TODO: why do I need to do this
     @export(name='index')                    # this makes it public.
     def index_backup(self):
+        username = quixote.get_cookie('username')
         vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
         return html.render('index.html', vars_dict)
 
     @export(name='upload')
     def upload(self):
-        return html.render('upload.html')
+        username = quixote.get_cookie('username')
+        vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
+        return html.render('upload.html', vars_dict)
 
     @export(name='view_comments')
     def view_comments(self):
         img = image.get_latest_image()
         res = image.get_comments(img)
         return res
+
+    def set_cookie(self, username):
+                quixote.get_response().set_cookie('username', username)
 
     @export(name='add_comment')
     def add_comment(self):
@@ -37,16 +53,31 @@ class RootDirectory(Directory):
         img = image.get_latest_image()
         img = image.add_comment(img, comment)
         imageapp_sql.update(img)
+
+        username = quixote.get_cookie('username')
         vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
         return html.render('index.html', vars_dict)
 
     @export(name='create_account_page')
     def create_account_page(self):
-        return html.render('create_account.html')
+        username = quixote.get_cookie('username')
+        vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
+        return html.render('create_account.html', vars_dict)
 
     @export(name='login_page')
     def login_page(self):
-        return html.render('login.html')
+        username = quixote.get_cookie('username')
+        vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
+        return html.render('login.html', vars_dict)
 
     @export(name='create_user')
     def create_account(self):
@@ -61,6 +92,7 @@ class RootDirectory(Directory):
             if password == password_confirm:
                 imageapp_sql.create_user(username, password)
                 vars_dict = {'username': username}
+                self.set_cookie(username)
         
         return html.render('index.html', vars_dict)
 
@@ -74,9 +106,10 @@ class RootDirectory(Directory):
         if password and username:
             authenticated = imageapp_sql.authenticate(username, password)
         
-        vars_dict = {'username': 'test'}
+        vars_dict = {'username': ''}
         if authenticated:
             vars_dict = {'username': username}
+            self.set_cookie(username)
 
         return html.render('index.html', vars_dict)
 
@@ -95,25 +128,46 @@ class RootDirectory(Directory):
                 user = "test")
         image.add_image(img, 'png')
 
+        username = quixote.get_cookie('username')
         vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
         return html.render('index.html', vars_dict)
         # TODO: actually redirect
         # return quixote.redirect('http://localhost:9567')
 
     @export(name='image')
     def image(self):
-        return html.render('image.html')
+        username = quixote.get_cookie('username')
+        vars_dict = {'username': ''}
+        if username:
+            vars_dict = {'username': username}
+
+        return html.render('image.html', vars_dict)
 
     @export(name='image_list')
     def image_list(self):
         image_num = image.get_image_num()
         vars_dict = {'num_images': image_num}
+
+        username = quixote.get_cookie('username')
+        vars_dict['username'] = ''
+        if username:
+            vars_dict['username'] = username
+
         return html.render('image_list.html', vars_dict)
 
     @export(name='image_list_server_side_thumbnail')
     def image_list_server_side_thumbnail(self):
         image_num = image.get_image_num()
         vars_dict = {'num_images': image_num}
+
+        username = quixote.get_cookie('username')
+        vars_dict['username'] = ''
+        if username:
+            vars_dict['username'] = username
+
         return html.render('image_list_server_side_thumbnail.html', vars_dict)
 
     @export(name='image_raw')
