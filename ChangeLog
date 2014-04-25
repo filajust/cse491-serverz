@@ -213,13 +213,18 @@
  *     the specified user to see if that user is registered
  * 
  * (2) project 9 - Add username login via cookies and tracking of image 
- *                 by "owner"
+ *                 by "owner". Allow owner to delete it.
  *     
  *     Log in by clicking the "login" link at the top of the page.
  *     When you upload an image the user is stored in the metadata.
  *     You can view the user by clicking the "View Metadata" button
  *     
+ *     Can also delete images by clicking the "delete" button on the
+ *     home page. If it isn't the user that uploaded it, nothing
+ *     happens
+ *     
  *     I added this by asking the cookie for the user and adding it
- *     as metadata to the image
+ *     as metadata to the image. Deletion works by querying the
+ *     database for the imagename, deleting it, then reloading the images.
  *     
 
