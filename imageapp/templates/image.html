@@ -1,5 +1,29 @@
 {% extends "base.html" %}
 
+{% block menu %}
+
+<div id="menu">
+    <ul>
+        <li><a href="index">Home</a></li>
+        <li><a href="upload">Upload</a></li>
+        <li><a href="image" class="active">Image</a></li>
+        <li><a href="http://oswd.org">Gallery</a></li>
+        <li><a href="image_list">Image List</a></li>
+        <li><a href="image_list_server_side_thumbnail">Image List (server resizes thumbnail)</a></li>
+    </ul>
+</div>
+<div id="menubottom"></div>
+
+{% endblock %}
+
+
+{% block username %}
+
+<h3><strong>User: </strong> <span> No User </span></h3>
+
+{% endblock %}
+
+
 {% block content %}
 Here is your image:
 <p>

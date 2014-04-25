@@ -13,6 +13,12 @@ class RootDirectory(Directory):
         vars_dict = {'username': ''}
         return html.render('index.html', vars_dict)
 
+    # TODO: why do I need to do this
+    @export(name='index')                    # this makes it public.
+    def index_backup(self):
+        vars_dict = {'username': ''}
+        return html.render('index.html', vars_dict)
+
     @export(name='upload')
     def upload(self):
         return html.render('upload.html')
@@ -45,28 +51,33 @@ class RootDirectory(Directory):
     @export(name='create_user')
     def create_account(self):
         request = quixote.get_request()
+
         username = request.form['username'].encode("latin-1")
         password = request.form['password'].encode("latin-1")
         password_confirm = request.form['password_confirm'].encode("latin-1")
 
-        imageapp_sql.create_user(username, password)
-        
         vars_dict = {'username': ''}
+        if password and password_confirm and username:
+            if password == password_confirm:
+                imageapp_sql.create_user(username, password)
+                vars_dict = {'username': username}
+        
         return html.render('index.html', vars_dict)
 
     @export(name='login')
     def login(self):
         request = quixote.get_request()
+
+        authenticated = False
         username = request.form['username'].encode("latin-1")
         password = request.form['password'].encode("latin-1")
-
-        authenticated = imageapp_sql.authenticate(username, password)
+        if password and username:
+            authenticated = imageapp_sql.authenticate(username, password)
         
-        vars_dict = None
+        vars_dict = {'username': 'test'}
         if authenticated:
             vars_dict = {'username': username}
-        else:
-            vars_dict = {'username': ''}
+
         return html.render('index.html', vars_dict)
 
     @export(name='upload_receive')

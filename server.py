@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+from sys import stderr
 import random
 import socket
 import time
@@ -55,11 +56,29 @@ def extractPath(text):
 def getEnvironData(conn):
     environ = {}
 
-    # credit to cameronkeif on github
-    data = ''
-    while '\r\n\r\n' not in data:
-        retVal = conn.recv(1)
-        data = data + retVal
+    data = conn.recv(1)
+    while data[-4:] != '\r\n\r\n':
+        new = conn.recv(1)
+        if new == '':
+            return {\
+                'REQUEST_METHOD' : 'GET',\
+                'QUERY_STRING' : 'msg=BAD REQUEST',\
+                'PATH_INFO': '/badRequest',\
+                'CONTENT_TYPE' :'application/x-www-form-urlencoded',\
+                'CONTENT_LENGTH' : '0',\
+                'SCRIPT_NAME': '',\
+                'SERVER_NAME' : 'arctic.cse.msu.edu',\
+                'SERVER_PORT' : 'abc',\
+                'wsgi.version' : (1,0),\
+                'wsgi.input' : StringIO(''),\
+                'wsgi.errors' : stderr,\
+                'wsgi.multithread' : False,\
+                'wsgi.multiprocess' : False,\
+                'wsgi.run_once' : False,\
+                'wsgi.url_scheme' : 'http'
+            }
+        else:
+            data += new
 
     requestType, theRest = data.split('\r\n', 1)
     headers_temp, content = theRest.split('\r\n\r\n', 1)
