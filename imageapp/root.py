@@ -117,6 +117,7 @@ class RootDirectory(Directory):
     def upload_receive(self):
         request = quixote.get_request()
         # print 'request.form.keys(): ', request.form.keys()
+        username = quixote.get_cookie('username')
 
         the_file = request.form['file']
         # print dir(the_file)
@@ -125,10 +126,9 @@ class RootDirectory(Directory):
         img = image.create_image_dict(data = data,\
                 fileName = the_file.base_filename,\
                 description = "uploaded image",\
-                user = "test")
+                user = username)
         image.add_image(img, 'png')
 
-        username = quixote.get_cookie('username')
         vars_dict = {'username': ''}
         if username:
             vars_dict = {'username': username}
@@ -234,11 +234,15 @@ class RootDirectory(Directory):
 
         img = image.get_image(image_num)
 
+        username = quixote.get_cookie('username')
+        if username == None:
+            username = ''
         vars_dict = {'description': img['description'],
                      'commentList': img['commentList'],
                      'thumbnail': img['thumbnail'],
                      'file_name': img['file_name'],
-                     'user' : img['user']}
+                     'user' : img['user'],
+                     'username' : username}
         return html.render('retrieve_metadata.html', vars_dict)
         
 
