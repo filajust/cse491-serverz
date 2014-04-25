@@ -37,16 +37,18 @@ def get_image_num():
 
 def load_images(aDict):
     img = create_image_dict(data = aDict["data"], fileName = aDict["file_name"],
-                                               description = aDict["description"])
+                                               description = aDict["description"],
+                                               user = aDict["user"])
     images.append(img)
 
 def create_image_dict(data = "", fileName = "dice.png", 
-    description = "No description available"):
+            description = "No description available", user = ""):
     img = {"data" : data}
     img["file_name"] = fileName
     img["description"] = description
     img["commentList"] = []
     img["thumbnail"] = resize_image(data)
+    img["user"] = user
                             
     return img
 

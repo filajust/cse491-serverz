@@ -32,6 +32,16 @@ class RootDirectory(Directory):
         imageapp_sql.update(img)
         return html.render('index.html')
 
+    @export(name='create_account')
+    def create_account(self):
+        print 'create_account'
+        return html.render('index.html')
+
+    @export(name='login')
+    def login(self):
+        print 'login'
+        return html.render('index.html')
+
     @export(name='upload_receive')
     def upload_receive(self):
         request = quixote.get_request()
@@ -43,7 +53,8 @@ class RootDirectory(Directory):
         data = the_file.read(int(1e9))
         img = image.create_image_dict(data = data,\
                 fileName = the_file.base_filename,\
-                description = "uploaded image")
+                description = "uploaded image",\
+                user = "test")
         image.add_image(img, 'png')
 
         # datatype = the_file.base_filename.split('.')[-1]
@@ -81,7 +92,6 @@ class RootDirectory(Directory):
             except ValueError:
                 print "ERROR: not an int... showing latest"
                 image_num = image.get_image_num()
-            
             image_count = image.get_image_num()
 
             if image_num > image_count:
@@ -136,7 +146,8 @@ class RootDirectory(Directory):
         vars_dict = {'description': img['description'],
                      'commentList': img['commentList'],
                      'thumbnail': img['thumbnail'],
-                     'file_name': img['file_name']}
+                     'file_name': img['file_name'],
+                     'user' : img['user']}
         return html.render('retrieve_metadata.html', vars_dict)
         
 

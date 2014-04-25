@@ -6,8 +6,7 @@ import sys
 
 def create():
     db = sqlite3.connect('images.sqlite')
-    # db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB)');
-    db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB, description TEXT, file_name TEXT)');
+    db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB, description TEXT, file_name TEXT, user TEXT)');
     db.commit()
     db.close()
 
@@ -25,8 +24,7 @@ def insert(image_data):
     c = db.cursor()
 
     # insert!
-    # db.execute('INSERT INTO image_store (image) VALUES (?)', (image_data,))
-    c.execute('INSERT INTO image_store (image, description, file_name) VALUES (?,?,?)', (image_data["data"],image_data["description"], image_data["file_name"]))
+    c.execute('INSERT INTO image_store (image, description, file_name, user) VALUES (?,?,?,?)', (image_data["data"],image_data["description"], image_data["file_name"], image_data["user"]))
     db.commit()
     db.close()
 
@@ -38,7 +36,7 @@ def update(img):
     db.text_factory = bytes
     c = db.cursor()
 
-    c.execute('INSERT OR REPLACE INTO image_store (image, description, file_name) VALUES (?,?,?)', (img["data"],img["description"], img["file_name"]))
+    c.execute('INSERT OR REPLACE INTO image_store (image, description, file_name, user) VALUES (?,?,?,?)', (img["data"],img["description"], img["file_name"], img["user"]))
 
     db.commit()
     db.close()
@@ -88,6 +86,7 @@ def load_all_images():
         imgForm["data"] = row[1]
         imgForm["description"] = row[2]
         imgForm["file_name"] = row[3]
+        imgForm["user"] = row[4]
         imageList.append(imgForm)
 
     db.commit()
